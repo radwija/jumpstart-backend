@@ -34,11 +34,17 @@ public class UserServiceImpl implements UserService {
         try {
             if (userRepository.existsByEmail(request.getEmail()) && userRepository.existsByUsername(request.getUsername())) {
                 throw new CredentialAlreadyTakenException("Username not available and email already taken!");
-            } if (userRepository.existsByEmail(request.getEmail())) {
+            }
+            if (userRepository.existsByEmail(request.getEmail())) {
                 throw new CredentialAlreadyTakenException("Email already taken!");
-            } if (userRepository.existsByUsername(request.getUsername())) {
+            }
+            if (userRepository.existsByUsername(request.getUsername())) {
                 throw new CredentialAlreadyTakenException("Username not available!");
             }
+            if (request.getPassword().equals("")) {
+                throw new RuntimeException("Password is required!");
+            }
+
             User newUser = new User();
             UserProfile userProfile = new UserProfile();
 
@@ -59,8 +65,7 @@ public class UserServiceImpl implements UserService {
             userProfileRepository.save(userProfile);
 
             return BaseResponse.ok(newUser);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             response.setCode(400);
             response.setMessage(e.getMessage());
             return response;
