@@ -1,4 +1,4 @@
-package com.radwija.jumpstartbackend.config;
+package com.radwija.jumpstartbackend.security.cors;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
