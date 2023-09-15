@@ -23,8 +23,9 @@ public class SecurityConfig {
 //                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                .and()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/**").authenticated()
-                .anyRequest().authenticated()
+                .antMatchers("/api/**").permitAll()
+                .anyRequest().permitAll()
+//                .authenticated()
                 .and()
                 .httpBasic().disable()
                 .formLogin().disable();

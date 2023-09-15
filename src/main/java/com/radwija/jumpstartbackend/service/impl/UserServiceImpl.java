@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -32,14 +33,8 @@ public class UserServiceImpl implements UserService {
     public BaseResponse<?> saveUser(UserRegisterRequest request) {
         BaseResponse<User> response = new BaseResponse<>();
         try {
-            if (userRepository.existsByEmail(request.getEmail()) && userRepository.existsByUsername(request.getUsername())) {
-                throw new CredentialAlreadyTakenException("Username not available and email already taken!");
-            }
             if (userRepository.existsByEmail(request.getEmail())) {
                 throw new CredentialAlreadyTakenException("Email already taken!");
-            }
-            if (userRepository.existsByUsername(request.getUsername())) {
-                throw new CredentialAlreadyTakenException("Username not available!");
             }
             if (request.getPassword().equals("")) {
                 throw new RuntimeException("Password is required!");
@@ -53,13 +48,14 @@ public class UserServiceImpl implements UserService {
             BeanUtils.copyProperties(request, newUser);
             BeanUtils.copyProperties(request, userProfile);
 
-            newUser.setRole(ERole.USER.toString());
+            newUser.setRole(ERole.ROLE_USER.toString());
 
             UUID uuid = UUID.randomUUID();
             newUser.setUuid(uuid.toString());
 
             String encodedPassword = passwordEncoder.encode(request.getPassword());
             newUser.setPassword(encodedPassword);
+            newUser.setRegisteredAt(new Date());
 
             userRepository.save(newUser);
             userProfileRepository.save(userProfile);

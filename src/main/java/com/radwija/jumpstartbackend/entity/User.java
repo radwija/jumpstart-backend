@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email"),
-        @UniqueConstraint(columnNames = "username")
+        @UniqueConstraint(columnNames = "email")
 })
 @Setter
 @Getter
@@ -19,8 +19,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    private String username;
-
     private String email;
 
     @Column(unique = true)
@@ -28,6 +26,8 @@ public class User {
 
     @JsonIgnore
     private String password;
+
+    private Date registeredAt;
 
     private String role;
 }
