@@ -12,6 +12,8 @@ import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -66,5 +68,12 @@ public class UserServiceImpl implements UserService {
             response.setMessage(e.getMessage());
             return response;
         }
+    }
+
+    @Override
+    public User getCurrentUser() {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        userRepository.findByEmail(currentUserEmail);
+        return userRepository.findByEmail(currentUserEmail).orElseThrow(()-> new UsernameNotFoundException("current user not found"));
     }
 }

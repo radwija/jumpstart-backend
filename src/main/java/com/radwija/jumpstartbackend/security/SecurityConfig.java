@@ -1,5 +1,6 @@
 package com.radwija.jumpstartbackend.security;
 
+import com.radwija.jumpstartbackend.constraint.ERole;
 import com.radwija.jumpstartbackend.security.jwt.AuthEntryPoint;
 import com.radwija.jumpstartbackend.security.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
