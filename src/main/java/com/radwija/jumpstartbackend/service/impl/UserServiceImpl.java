@@ -9,6 +9,7 @@ import com.radwija.jumpstartbackend.payload.request.UserRegisterRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.repository.UserProfileRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
+import com.radwija.jumpstartbackend.service.EmailSenderService;
 import com.radwija.jumpstartbackend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailSenderService emailSenderService;
+
     @Override
     public BaseResponse<?> saveUser(UserRegisterRequest request) {
         BaseResponse<User> response = new BaseResponse<>();
@@ -50,7 +54,8 @@ public class UserServiceImpl implements UserService {
             BeanUtils.copyProperties(request, newUser);
             BeanUtils.copyProperties(request, userProfile);
 
-            newUser.setRole(ERole.ROLE_USER.toString());
+//            newUser.setIsActive(false);
+            newUser.setRole(ERole.ROLE_USER);
 
             UUID uuid = UUID.randomUUID();
             newUser.setUuid(uuid.toString());
@@ -61,6 +66,13 @@ public class UserServiceImpl implements UserService {
 
             userRepository.save(newUser);
             userProfileRepository.save(userProfile);
+
+//            emailSenderService.sendMail(newUser.getEmail(),
+//                    "Account Activation | ABC Jobs Portal",
+//                    "Thanks for registering in ABC Jobs Portal. Here is you activation URL to get started your journey in ABC Jobs Portal!" +
+//                            "\n" +
+//                            "http://localhost:8080/register-confirmation?confirm=" + newUser.getUuid()
+//            );
 
             return BaseResponse.ok(newUser);
         } catch (RuntimeException e) {

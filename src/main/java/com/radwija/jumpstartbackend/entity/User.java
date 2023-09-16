@@ -1,6 +1,7 @@
 package com.radwija.jumpstartbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.radwija.jumpstartbackend.constraint.ERole;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,5 +30,8 @@ public class User {
 
     private Date registeredAt;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private ERole role;
+
+    private Boolean isActive;
 }

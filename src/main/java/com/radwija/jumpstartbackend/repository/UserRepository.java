@@ -1,5 +1,6 @@
 package com.radwija.jumpstartbackend.repository;
 
+import com.radwija.jumpstartbackend.constraint.ERole;
 import com.radwija.jumpstartbackend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,4 +11,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     Optional<User> findByEmail(String email);
+    boolean existsByEmailAndRole(String email, ERole role);
 }
