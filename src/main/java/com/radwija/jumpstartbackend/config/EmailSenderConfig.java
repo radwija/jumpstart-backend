@@ -24,7 +24,7 @@ public class EmailSenderConfig {
 
         javaMailSender.setJavaMailProperties(properties);
         javaMailSender.setUsername("jumpstartecommerce.lithan@gmail.com");
-        javaMailSender.setPassword("ovpeagzvdihzrubg");
+        javaMailSender.setPassword("scqwzpjvdpaseaad");
 
         return javaMailSender;
 

@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
             BeanUtils.copyProperties(request, newUser);
             BeanUtils.copyProperties(request, userProfile);
 
-//            newUser.setIsActive(false);
+            newUser.setIsActive(false);
             newUser.setRole(ERole.ROLE_USER);
 
             UUID uuid = UUID.randomUUID();
@@ -67,12 +67,12 @@ public class UserServiceImpl implements UserService {
             userRepository.save(newUser);
             userProfileRepository.save(userProfile);
 
-//            emailSenderService.sendMail(newUser.getEmail(),
-//                    "Account Activation | ABC Jobs Portal",
-//                    "Thanks for registering in ABC Jobs Portal. Here is you activation URL to get started your journey in ABC Jobs Portal!" +
-//                            "\n" +
-//                            "http://localhost:8080/register-confirmation?confirm=" + newUser.getUuid()
-//            );
+            emailSenderService.sendMail(newUser.getEmail(),
+                    "Account Activation",
+                    "Thanks for registering in Jumpstart E-commerce. Here is you activation URL to get started your journey in Jumpstart E-commerce!" +
+                            "\n" +
+                            "http://localhost:8080/register-confirmation?confirm=" + newUser.getUuid()
+            );
 
             return BaseResponse.ok(newUser);
         } catch (RuntimeException e) {

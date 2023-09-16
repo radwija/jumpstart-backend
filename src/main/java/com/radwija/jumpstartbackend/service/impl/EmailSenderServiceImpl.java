@@ -32,7 +32,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("jumpstartecommerce.lithan@gmail.com");
         message.setTo(to);
-        message.setSubject(subject);
+        message.setSubject(subject + " | Jumpstart E-commerce");
         message.setText(text);
 
         javaMailSender.send(message);
