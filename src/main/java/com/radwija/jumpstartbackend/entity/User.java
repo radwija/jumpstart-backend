@@ -1,5 +1,6 @@
 package com.radwija.jumpstartbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.radwija.jumpstartbackend.constraint.ERole;
 import lombok.Getter;
@@ -36,6 +37,7 @@ public class User {
 
     private Boolean isActive;
 
+    @JsonBackReference
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private UserProfile userProfile;
 }

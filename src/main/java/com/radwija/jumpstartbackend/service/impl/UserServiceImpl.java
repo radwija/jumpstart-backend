@@ -49,9 +49,6 @@ public class UserServiceImpl implements UserService {
             User newUser = new User();
             UserProfile userProfile = new UserProfile();
 
-            userProfile.setUser(newUser);
-//            newUser.setUserProfile(userProfile);
-
             BeanUtils.copyProperties(request, newUser);
             BeanUtils.copyProperties(request, userProfile);
 
@@ -65,8 +62,10 @@ public class UserServiceImpl implements UserService {
             newUser.setPassword(encodedPassword);
             newUser.setRegisteredAt(new Date());
 
+            userProfile.setUser(newUser);
+            newUser.setUserProfile(userProfile);
+
             userRepository.save(newUser);
-            userProfileRepository.save(userProfile);
 
             emailSenderService.sendMail(newUser.getEmail(),
                     "Account Activation",
