@@ -18,6 +18,7 @@ import java.util.Date;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
 
     private String email;
@@ -34,4 +35,7 @@ public class User {
     private ERole role;
 
     private Boolean isActive;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    private UserProfile userProfile;
 }

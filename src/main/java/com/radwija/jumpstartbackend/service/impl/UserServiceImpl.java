@@ -50,6 +50,7 @@ public class UserServiceImpl implements UserService {
             UserProfile userProfile = new UserProfile();
 
             userProfile.setUser(newUser);
+//            newUser.setUserProfile(userProfile);
 
             BeanUtils.copyProperties(request, newUser);
             BeanUtils.copyProperties(request, userProfile);
@@ -73,7 +74,6 @@ public class UserServiceImpl implements UserService {
                             "\n" +
                             "http://localhost:8080/register-confirmation?confirm=" + newUser.getUuid()
             );
-
             return BaseResponse.ok(newUser);
         } catch (RuntimeException e) {
             response.setCode(400);
