@@ -5,11 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-    @GetMapping("/anjing")
+    @GetMapping("/test")
     public String mantap() {
         return "mantap";
     }

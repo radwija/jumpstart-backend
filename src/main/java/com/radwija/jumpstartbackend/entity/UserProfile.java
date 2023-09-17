@@ -1,6 +1,7 @@
 package com.radwija.jumpstartbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.radwija.jumpstartbackend.constraint.EGender;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,5 +21,9 @@ public class UserProfile {
 
     private String firstName;
     private String lastName;
-    private String gender;
+
+    @Enumerated(EnumType.STRING)
+    private EGender gender;
+
+    private String address;
 }
