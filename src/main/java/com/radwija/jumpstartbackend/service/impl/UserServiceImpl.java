@@ -5,6 +5,7 @@ import com.radwija.jumpstartbackend.constraint.ERole;
 import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.entity.UserProfile;
 import com.radwija.jumpstartbackend.exception.CredentialAlreadyTakenException;
+import com.radwija.jumpstartbackend.exception.UserNotFoundException;
 import com.radwija.jumpstartbackend.payload.request.UserRegisterRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.repository.UserProfileRepository;
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
                     "Account Activation",
                     "Thanks for registering in Jumpstart E-commerce. Here is you activation URL to get started your journey in Jumpstart E-commerce!" +
                             "\n" +
-                            "http://localhost:8080/register-confirmation?confirm=" + newUser.getUuid()
+                            "http://localhost:3000/account-activation/" + newUser.getUuid()
             );
             return BaseResponse.ok(newUser);
         } catch (RuntimeException e) {
@@ -86,5 +87,34 @@ public class UserServiceImpl implements UserService {
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         userRepository.findByEmail(currentUserEmail);
         return userRepository.findByEmail(currentUserEmail).orElseThrow(()-> new UsernameNotFoundException("current user not found"));
+    }
+
+    @Override
+    public Boolean isActive(String email) {
+        return userRepository.existsByEmailAndIsActive(email, true);
+    }
+
+    @Override
+    public BaseResponse<?> activateUser(String uuid) {
+        BaseResponse<User> response = new BaseResponse<>();
+        try {
+            User activatedUser = userRepository.findByUuid(uuid);
+            if (activatedUser == null) {
+                throw new UserNotFoundException("Account not found:(");
+            }
+
+            activatedUser.setIsActive(true);
+            userRepository.save(activatedUser);
+
+            response.setCode(200);
+            response.setMessage("Account successfully activated!");
+            response.setResult(activatedUser);
+
+            return response;
+        } catch (UserNotFoundException e) {
+            response.setCode(400);
+            response.setMessage(e.getMessage());
+            return response;
+        }
     }
 }

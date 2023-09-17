@@ -8,4 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public interface UserService {
     BaseResponse<?> saveUser(UserRegisterRequest userRegisterRequest);
     User getCurrentUser();
+    Boolean isActive(String email);
+    BaseResponse<?> activateUser(String uuid);
 }

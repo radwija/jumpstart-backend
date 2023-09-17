@@ -55,6 +55,12 @@ public class AuthController {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toSet());
 
+            boolean isActive = userService.isActive(loginRequest.getEmail());
+            if (!isActive) {
+                System.out.println("Your account is not active yet");
+                return ResponseEntity.status(401)
+                        .body("Your account is not active yet, please activate your account");
+            }
             String jwtToken = jwtUtil.generateToken(user.getUsername());
             AuthResponse authResponse = new AuthResponse();
             authResponse.setEmail(user.getUsername());
@@ -72,4 +78,14 @@ public class AuthController {
                     .body("Internal server error");
         }
     }
+
+    @GetMapping("/account-activation/{uuid}")
+    public ResponseEntity<?> activateUser(@PathVariable("uuid") String uuid) {
+        final BaseResponse<?> response = userService.activateUser(uuid);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
 }
