@@ -68,13 +68,17 @@ public class UserServiceImpl implements UserService {
 
             userRepository.save(newUser);
 
+            response.setCode(200);
+            response.setMessage("Registration done successfully! Check your email to activate your account.");
+            response.setResult(newUser);
+
             emailSenderService.sendMail(newUser.getEmail(),
                     "Account Activation",
                     "Thanks for registering in Jumpstart E-commerce. Here is you activation URL to get started your journey in Jumpstart E-commerce!" +
                             "\n" +
                             "http://localhost:3000/account-activation/" + newUser.getUuid()
             );
-            return BaseResponse.ok(newUser);
+            return response;
         } catch (RuntimeException e) {
             response.setCode(400);
             response.setMessage(e.getMessage());
