@@ -9,5 +9,7 @@ public class UpdateUserRequest {
     private String firstName;
     private String lastName;
     private String gender;
+    private String city;
+    private String country;
     private String address;
 }

@@ -25,5 +25,8 @@ public class UserProfile {
     @Enumerated(EnumType.STRING)
     private EGender gender;
 
+    private String city;
+    private String country;
+
     private String address;
 }

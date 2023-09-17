@@ -8,6 +8,7 @@ import com.radwija.jumpstartbackend.repository.UserProfileRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.UserProfileService;
 import com.radwija.jumpstartbackend.service.UserService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,8 +28,8 @@ public class UserController {
     private UserProfileService userProfileService;
 
     @GetMapping("/me")
-    public UserProfile userProfile() {
-        return userService.getCurrentUser().getUserProfile();
+    public ResponseEntity<?> userProfile() {
+        return ResponseEntity.ok(userService.getCurrentUser().getUserProfile());
     }
 
     @PutMapping("/update-profile")
