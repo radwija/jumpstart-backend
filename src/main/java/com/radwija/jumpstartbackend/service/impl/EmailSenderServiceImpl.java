@@ -44,7 +44,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         boolean isAdmin = userRepository.existsByEmailAndRole(userEmail, ERole.ROLE_ADMIN);
         if (!isAdmin) {
-            throw new RefusedActionException("You're not allowed to send email!");
+            throw new RefusedActionException("Forbidden");
         }
 
         String[] userIds = sendMailRequest.getUserIds();

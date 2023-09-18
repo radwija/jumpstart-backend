@@ -24,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
         BaseResponse<Category> response = new BaseResponse<>();
         try {
             if (!userRepository.existsByEmailAndRole(currentUserEmail, ERole.ROLE_ADMIN)) {
-                throw new RefusedActionException("You're not allowed to add category!");
+                throw new RefusedActionException("Forbidden");
             }
             Category newCategory = new Category();
             newCategory.setCategoryName(request.getCategoryName());
