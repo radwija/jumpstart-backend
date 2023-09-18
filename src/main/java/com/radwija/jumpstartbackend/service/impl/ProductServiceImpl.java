@@ -59,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
                 productRepository.save(existingProduct);
 
                 response.setCode(200);
-                response.setMessage("Product ID: " + existingProduct.getProductId() + " successfully!");
+                response.setMessage("Product ID: " + existingProduct.getProductId() + " updated successfully!");
                 response.setResult(existingProduct);
             }
 
@@ -82,6 +82,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void mapProductRequestToExistingProduct(ProductRequest productRequest, Product existingProduct) {
+        Date createdAt = existingProduct.getCreatedAt();
         BeanUtils.copyProperties(productRequest, existingProduct);
+        existingProduct.setCreatedAt(createdAt);
     }
 }

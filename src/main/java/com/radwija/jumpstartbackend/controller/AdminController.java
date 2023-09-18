@@ -42,4 +42,16 @@ public class AdminController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    @PutMapping("/update-product/{productId}")
+    public ResponseEntity<?> updateProduct(@PathVariable("productId") String productIdStr, @RequestBody ProductRequest request) {
+        Long ProductId = Long.parseLong(productIdStr);
+        String currentUserEmail = userService.getCurrentUser().getEmail();
+        request.setProductId(ProductId);
+        final BaseResponse<?> response = productService.saveProduct(currentUserEmail, request);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }
