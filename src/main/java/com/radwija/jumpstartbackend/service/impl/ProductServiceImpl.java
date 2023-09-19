@@ -134,7 +134,12 @@ public class ProductServiceImpl implements ProductService {
         }
 
         while (isSlugTaken) {
-            slug = slug + "_" + RandomString.make(16);
+            int underscoreIndex = slug.lastIndexOf("_");
+
+            if (underscoreIndex >= 0) {
+                slug = slug.substring(0, underscoreIndex);
+                slug += "_" + RandomString.make(16);
+            }
             isSlugTaken = productRepository.existsBySlug(slug);
         }
 
