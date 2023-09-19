@@ -21,10 +21,19 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/products/{productId}")
-    public ResponseEntity<?> showAllProductDetails(@PathVariable("productId") String productIdStr) {
+    @GetMapping("/products/id/{productId}")
+    public ResponseEntity<?> showProductDetailsByProductId(@PathVariable("productId") String productIdStr) {
         Long productId = Long.parseLong(productIdStr);
-        BaseResponse<?> response = productService.showProductDetails(productId);
+        BaseResponse<?> response = productService.showProductDetailsByProductId(productId);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.status(404).body(response);
+    }
+
+    @GetMapping("/products/slug/{slug}")
+    public ResponseEntity<?> showProductDetailsBySlug(@PathVariable("slug") String slug) {
+        BaseResponse<?> response = productService.showProductDetailsBySlug(slug);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }

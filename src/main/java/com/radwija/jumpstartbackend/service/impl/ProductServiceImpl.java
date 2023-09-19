@@ -44,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
             }
             System.out.println("category id service: " + productRequest.getCategoryId());
             Category category = categoryRepository.findByCategoryId(productRequest.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
-            String rawSlug = productRequest.getSlug().toLowerCase().trim().replaceAll(" ", "_");
+            String rawSlug = productRequest.getSlug().toLowerCase().trim().replaceAll(" ", "-");
 
             if (productRequest.getProductId() == null) {
                 Product newProduct = mapProductRequestToNewProduct(productRequest);
@@ -99,9 +99,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public BaseResponse<?> showProductDetails(Long productId) {
+    public BaseResponse<?> showProductDetailsByProductId(Long productId) {
         try {
             Product detailedProduct = productRepository.findByProductId(productId).orElseThrow(() -> new ProductNotFoundException("Product not found"));
+            return BaseResponse.ok(detailedProduct);
+        } catch (ProductNotFoundException e) {
+            return BaseResponse.notFound(e.getMessage());
+        }
+    }
+
+    @Override
+    public BaseResponse<?> showProductDetailsBySlug(String slug) {
+        try {
+            Product detailedProduct = productRepository.findBySlug(slug);
+            if (detailedProduct == null) {
+                throw new ProductNotFoundException("Product not found");
+            }
             return BaseResponse.ok(detailedProduct);
         } catch (ProductNotFoundException e) {
             return BaseResponse.notFound(e.getMessage());
@@ -116,7 +129,7 @@ public class ProductServiceImpl implements ProductService {
             return slug;
         }
 
-        if (product != null && slug.equals(product.getSlug())) {
+        if (productRepository.findBySlug(slug).equals(product)) {
             return slug;
         }
 
