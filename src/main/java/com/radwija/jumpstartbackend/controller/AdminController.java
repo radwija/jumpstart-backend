@@ -64,4 +64,15 @@ public class AdminController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    @DeleteMapping("/delete-product/{productId}")
+    public ResponseEntity<?> deleteProductByProductId(@PathVariable("productId") String productIdStr) {
+        Long productId = Long.parseLong(productIdStr);
+        String currentUserEmail = userService.getCurrentUser().getEmail();
+        BaseResponse<?> response = productService.deleteProductByProductId(currentUserEmail, productId);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }

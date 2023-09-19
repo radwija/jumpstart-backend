@@ -7,6 +7,7 @@ import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import java.util.Optional;
 
 public interface ProductService {
+    void checkUserIsAdmin(String currentUserEmail);
     BaseResponse<?> saveProduct(String currentUserEmail, ProductRequest productRequest);
     Product mapProductRequestToNewProduct(ProductRequest productRequest);
     void mapProductRequestToExistingProduct(ProductRequest productRequest, Product existingProduct);
@@ -15,4 +16,5 @@ public interface ProductService {
     BaseResponse<?> showProductDetailsBySlug(String slug);
     Product getProductDetailsBySlug(String slug);
     String handleUniqueSlug(Product product, String slug);
+    BaseResponse<?> deleteProductByProductId(String currentUserEmail, Long productId);
 }

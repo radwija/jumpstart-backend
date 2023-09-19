@@ -35,13 +35,18 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepository categoryRepository;
 
     @Override
+    public void checkUserIsAdmin(String currentUserEmail) {
+        boolean isAdmin = userRepository.existsByEmailAndRole(currentUserEmail, ERole.ROLE_ADMIN);
+        if (!isAdmin) {
+            throw new RefusedActionException("Forbidden");
+        }
+    }
+
+    @Override
     public BaseResponse<?> saveProduct(String currentUserEmail, ProductRequest productRequest) {
         BaseResponse<Product> response = new BaseResponse<>();
         try {
-            boolean isAdmin = userRepository.existsByEmailAndRole(currentUserEmail, ERole.ROLE_ADMIN);
-            if (!isAdmin) {
-                throw new RefusedActionException("Forbidden");
-            }
+            checkUserIsAdmin(currentUserEmail);
             System.out.println("category id service: " + productRequest.getCategoryId());
             Category category = categoryRepository.findByCategoryId(productRequest.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
             String rawSlug = productRequest.getSlug().toLowerCase().trim().replaceAll(" ", "-");
@@ -113,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             Product detailedProduct = productRepository.findBySlug(slug);
             if (detailedProduct == null) {
-                throw new ProductNotFoundException("Product not found");
+                throw new ProductNotFoundException("Product not found.");
             }
             return BaseResponse.ok(detailedProduct);
         } catch (ProductNotFoundException e) {
@@ -125,7 +130,7 @@ public class ProductServiceImpl implements ProductService {
     public Product getProductDetailsBySlug(String slug) {
         Product product = productRepository.findBySlug(slug);
         if (product == null) {
-            throw new ProductNotFoundException("Product not found");
+            throw new ProductNotFoundException("Product not found.");
         }
         return product;
     }
@@ -153,5 +158,20 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return slug;
+    }
+
+    @Override
+    public BaseResponse<?> deleteProductByProductId(String currentUserEmail, Long productId) {
+        BaseResponse<Product> response = new BaseResponse<>();
+        try {
+            checkUserIsAdmin(currentUserEmail);
+            if (!productRepository.existsByProductId(productId)) {
+                throw new ProductNotFoundException("Product not found.");
+            }
+            productRepository.deleteById(productId);
+            return BaseResponse.ok("Product ID: " + productId + " deleted successfully.");
+        } catch (RuntimeException e) {
+            return BaseResponse.badRequest(e.getMessage());
+        }
     }
 }

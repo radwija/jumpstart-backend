@@ -12,10 +12,27 @@ public class BaseResponse<DataTypeRoot> {
     String message = "Unauthorized";
     DataTypeRoot result = null;
 
+    public static <DataType> BaseResponse<?> ok (String msg) {
+        BaseResponse<DataType> response = new BaseResponse<>();
+        response.code = 200;
+        response.message = msg;
+
+        return response;
+    }
+
     public static <DataType> BaseResponse<?> ok (DataType result) {
         BaseResponse<DataType> response = new BaseResponse<>();
         response.code = 200;
         response.message = "success";
+        response.result = result;
+
+        return response;
+    }
+
+    public static <DataType> BaseResponse<?> ok (String msg, DataType result) {
+        BaseResponse<DataType> response = new BaseResponse<>();
+        response.code = 200;
+        response.message = msg;
         response.result = result;
 
         return response;
