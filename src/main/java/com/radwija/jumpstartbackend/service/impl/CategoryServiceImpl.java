@@ -29,15 +29,22 @@ public class CategoryServiceImpl implements CategoryService {
             if (!userRepository.existsByEmailAndRole(currentUserEmail, ERole.ROLE_ADMIN)) {
                 throw new RefusedActionException("Forbidden");
             }
-            Category newCategory = new Category();
-            newCategory.setCategoryName(request.getCategoryName());
+            String categoryName = request.getCategoryName().trim();
             String slug = request.getCategoryName().toLowerCase().trim().replaceAll(" ", "_");
-            newCategory.setCategorySlug(slug);
-            categoryRepository.save(newCategory);
+            Category category = categoryRepository.findByCategorySlug(slug);
+
+            if (category == null) {
+                category = new Category();
+                category.setCategoryName(categoryName);
+                category.setCategorySlug(slug);
+                categoryRepository.save(category);
+                response.setMessage("New category created successfully!");
+            } else {
+                response.setMessage("Category has been created. Category ID: " + category.getCategoryId());
+            }
 
             response.setCode(200);
-            response.setMessage("New category created successfully!");
-            response.setResult(newCategory);
+            response.setResult(category);
             return response;
         } catch (RefusedActionException e) {
             response.setCode(403);
