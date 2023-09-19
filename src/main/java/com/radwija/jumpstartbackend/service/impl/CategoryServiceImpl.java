@@ -11,6 +11,7 @@ import com.radwija.jumpstartbackend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
             response.setCode(200);
             response.setMessage("New category created successfully!");
             response.setResult(newCategory);
-            return  response;
+            return response;
         } catch (RefusedActionException e) {
             response.setCode(403);
             response.setMessage(e.getMessage());
@@ -46,8 +47,41 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public BaseResponse<?> showCategories() {
-        BaseResponse<Category> response = new BaseResponse<>();
         List<Category> categories = categoryRepository.findAll();
+
+        return BaseResponse.ok(categories);
+    }
+
+    @Override
+    public BaseResponse<?> showCategories(String orderBy) {
+        List<Category> categories = new ArrayList<>();
+        switch (orderBy) {
+            case "asc":
+                categories = categoryRepository.findAllByOrderByCategoryNameAsc();
+                break;
+            case "desc":
+                categories = categoryRepository.findAllByOrderByCategoryNameDesc();
+                break;
+            default:
+                categories = categoryRepository.findAll();
+        }
+
+        return BaseResponse.ok(categories);
+    }
+
+    @Override
+    public BaseResponse<?> showCategoriesWithProducts(String orderBy) {
+        List<Category> categories = new ArrayList<>();
+        switch (orderBy) {
+            case "asc":
+                categories = categoryRepository.findAllByOrderByCategoryNameAsc();
+                break;
+            case "desc":
+                categories = categoryRepository.findAllByOrderByCategoryNameDesc();
+                break;
+            default:
+                categories = categoryRepository.findAll();
+        }
 
         return BaseResponse.ok(categories);
     }

@@ -7,4 +7,6 @@ import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 public interface CategoryService {
     BaseResponse<?> saveCategory(String currentUserEmail, CreateCategoryRequest request);
     BaseResponse<?> showCategories();
+    BaseResponse<?> showCategories(String orderBy);
+    BaseResponse<?> showCategoriesWithProducts(String orderBy);
 }
