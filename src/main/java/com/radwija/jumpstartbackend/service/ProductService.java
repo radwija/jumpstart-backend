@@ -10,4 +10,5 @@ public interface ProductService {
     void mapProductRequestToExistingProduct(ProductRequest productRequest, Product existingProduct);
     BaseResponse<?> showAllProducts();
     BaseResponse<?> showProductDetails(Long productId);
+    String handleUniqueSlug(Product product, String slug);
 }

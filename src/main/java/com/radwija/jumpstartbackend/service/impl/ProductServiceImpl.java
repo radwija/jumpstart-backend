@@ -12,6 +12,7 @@ import com.radwija.jumpstartbackend.repository.CategoryRepository;
 import com.radwija.jumpstartbackend.repository.ProductRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.ProductService;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -43,10 +44,12 @@ public class ProductServiceImpl implements ProductService {
             }
             System.out.println("category id service: " + productRequest.getCategoryId());
             Category category = categoryRepository.findByCategoryId(productRequest.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+            String rawSlug = productRequest.getSlug().toLowerCase().trim().replaceAll(" ", "_");
 
             if (productRequest.getProductId() == null) {
                 Product newProduct = mapProductRequestToNewProduct(productRequest);
                 newProduct.setCategory(category);
+                newProduct.setSlug(handleUniqueSlug(newProduct, rawSlug));
                 newProduct.setCreatedAt(new Date());
                 productRepository.save(newProduct);
 
@@ -56,6 +59,7 @@ public class ProductServiceImpl implements ProductService {
             } else {
                 Product existingProduct = productRepository.findByProductId(productRequest.getProductId()).orElseThrow(() -> new ProductNotFoundException("Product not found"));
                 mapProductRequestToExistingProduct(productRequest, existingProduct);
+                existingProduct.setSlug(handleUniqueSlug(existingProduct, rawSlug));
                 existingProduct.setUpdatedAt(new Date());
                 productRepository.save(existingProduct);
 
@@ -102,5 +106,25 @@ public class ProductServiceImpl implements ProductService {
         } catch (ProductNotFoundException e) {
             return BaseResponse.notFound(e.getMessage());
         }
+    }
+
+    @Override
+    public String handleUniqueSlug(Product product, String slug) {
+        boolean isSlugTaken = productRepository.existsBySlug(slug);
+
+        if (!isSlugTaken) {
+            return slug;
+        }
+
+        if (product != null && slug.equals(product.getSlug())) {
+            return slug;
+        }
+
+        while (isSlugTaken) {
+            slug = slug + "_" + RandomString.make(16);
+            isSlugTaken = productRepository.existsBySlug(slug);
+        }
+
+        return slug;
     }
 }

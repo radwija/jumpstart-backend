@@ -16,6 +16,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
     private String productName;
+    private String slug;
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String description;
