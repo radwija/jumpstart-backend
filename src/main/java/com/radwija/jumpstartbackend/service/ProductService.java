@@ -9,4 +9,5 @@ public interface ProductService {
     Product mapProductRequestToNewProduct(ProductRequest productRequest);
     void mapProductRequestToExistingProduct(ProductRequest productRequest, Product existingProduct);
     BaseResponse<?> showAllProducts();
+    BaseResponse<?> showProductDetails(Long productId);
 }

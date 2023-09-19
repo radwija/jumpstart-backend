@@ -5,6 +5,7 @@ import com.radwija.jumpstartbackend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,5 +19,15 @@ public class ProductController {
     public ResponseEntity<?> showAllProducts() {
         BaseResponse<?> response = productService.showAllProducts();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<?> showAllProductDetails(@PathVariable("productId") String productIdStr) {
+        Long productId = Long.parseLong(productIdStr);
+        BaseResponse<?> response = productService.showProductDetails(productId);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.status(404).body(response);
     }
 }

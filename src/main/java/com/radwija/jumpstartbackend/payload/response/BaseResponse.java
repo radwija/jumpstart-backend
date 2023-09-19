@@ -40,4 +40,11 @@ public class BaseResponse<DataTypeRoot> {
         response.code = 403;
         return response;
     }
+
+    public static BaseResponse<?> notFound(String msg) {
+        BaseResponse<?> response = new BaseResponse<>();
+        response.code = 404;
+        response.message = msg;
+        return response;
+    }
 }

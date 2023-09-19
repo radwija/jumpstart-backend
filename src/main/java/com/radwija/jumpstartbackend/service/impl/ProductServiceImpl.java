@@ -93,4 +93,14 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = productRepository.findAll();
         return BaseResponse.ok(products);
     }
+
+    @Override
+    public BaseResponse<?> showProductDetails(Long productId) {
+        try {
+            Product detailedProduct = productRepository.findByProductId(productId).orElseThrow(() -> new ProductNotFoundException("Product not found"));
+            return BaseResponse.ok(detailedProduct);
+        } catch (ProductNotFoundException e) {
+            return BaseResponse.notFound(e.getMessage());
+        }
+    }
 }
