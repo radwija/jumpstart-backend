@@ -143,17 +143,23 @@ public class ProductServiceImpl implements ProductService {
             return slug;
         }
 
-        if (productRepository.findBySlug(slug).equals(product)) {
+        if (productRepository.findBySlug(slug) == product) {
             return slug;
         }
 
         while (isSlugTaken) {
-            int underscoreIndex = slug.lastIndexOf("_");
 
-            if (underscoreIndex >= 0) {
-                slug = slug.substring(0, underscoreIndex);
+            if (slug.contains("_")) {
+                int underscoreIndex = slug.lastIndexOf("_");
+
+                if (underscoreIndex >= 0) {
+                    slug = slug.substring(0, underscoreIndex);
+                    slug += "_" + RandomString.make(16);
+                }
+            } else {
                 slug += "_" + RandomString.make(16);
             }
+
             isSlugTaken = productRepository.existsBySlug(slug);
         }
 
