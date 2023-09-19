@@ -1,5 +1,7 @@
 package com.radwija.jumpstartbackend.controller;
 
+import com.radwija.jumpstartbackend.entity.Product;
+import com.radwija.jumpstartbackend.exception.ProductNotFoundException;
 import com.radwija.jumpstartbackend.payload.request.CreateCategoryRequest;
 import com.radwija.jumpstartbackend.payload.request.ProductRequest;
 import com.radwija.jumpstartbackend.payload.request.UserRegisterRequest;
@@ -43,12 +45,20 @@ public class AdminController {
         return ResponseEntity.badRequest().body(response);
     }
 
-    @PutMapping("/update-product/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable("productId") String productIdStr, @RequestBody ProductRequest request) {
-        Long ProductId = Long.parseLong(productIdStr);
+    @PutMapping("/update-product/{slug}")
+    public ResponseEntity<?> updateProduct(@PathVariable("slug") String slug, @RequestBody ProductRequest request) {
         String currentUserEmail = userService.getCurrentUser().getEmail();
-        request.setProductId(ProductId);
+
+        Long productId;
+        try {
+            productId = productService.getProductDetailsBySlug(slug).getProductId();
+            request.setProductId(productId);
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(404).body(BaseResponse.notFound(e.getMessage()));
+        }
+
         final BaseResponse<?> response = productService.saveProduct(currentUserEmail, request);
+
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }

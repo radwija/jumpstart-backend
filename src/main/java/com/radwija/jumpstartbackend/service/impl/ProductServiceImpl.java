@@ -122,6 +122,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product getProductDetailsBySlug(String slug) {
+        Product product = productRepository.findBySlug(slug);
+        if (product == null) {
+            throw new ProductNotFoundException("Product not found");
+        }
+        return product;
+    }
+
+    @Override
     public String handleUniqueSlug(Product product, String slug) {
         boolean isSlugTaken = productRepository.existsBySlug(slug);
 
