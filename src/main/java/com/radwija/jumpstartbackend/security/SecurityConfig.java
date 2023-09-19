@@ -58,6 +58,7 @@ public class SecurityConfig {
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/admin/**").hasAnyAuthority(ERole.ROLE_ADMIN.toString())
                 .antMatchers("/api/category/**").permitAll()
+                .antMatchers("/api/product/**").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .anyRequest()
 //                .permitAll()

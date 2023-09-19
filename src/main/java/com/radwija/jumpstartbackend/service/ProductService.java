@@ -8,4 +8,5 @@ public interface ProductService {
     BaseResponse<?> saveProduct(String currentUserEmail, ProductRequest productRequest);
     Product mapProductRequestToNewProduct(ProductRequest productRequest);
     void mapProductRequestToExistingProduct(ProductRequest productRequest, Product existingProduct);
+    BaseResponse<?> showAllProducts();
 }

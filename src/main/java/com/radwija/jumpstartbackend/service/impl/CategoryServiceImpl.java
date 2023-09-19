@@ -31,7 +31,8 @@ public class CategoryServiceImpl implements CategoryService {
             }
             Category newCategory = new Category();
             newCategory.setCategoryName(request.getCategoryName());
-
+            String slug = request.getCategoryName().toLowerCase().trim().replaceAll(" ", "_");
+            newCategory.setCategorySlug(slug);
             categoryRepository.save(newCategory);
 
             response.setCode(200);

@@ -25,7 +25,6 @@ public class Product {
     private Date createdAt;
     private Date updatedAt;
 
-    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;

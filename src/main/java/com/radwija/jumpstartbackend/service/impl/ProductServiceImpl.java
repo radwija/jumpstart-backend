@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -85,5 +86,11 @@ public class ProductServiceImpl implements ProductService {
         Date createdAt = existingProduct.getCreatedAt();
         BeanUtils.copyProperties(productRequest, existingProduct);
         existingProduct.setCreatedAt(createdAt);
+    }
+
+    @Override
+    public BaseResponse<?> showAllProducts() {
+        List<Product> products = productRepository.findAll();
+        return BaseResponse.ok(products);
     }
 }
