@@ -40,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
             if (!isAdmin) {
                 throw new RefusedActionException("Forbidden");
             }
-
+            System.out.println("category id service: " + productRequest.getCategoryId());
             Category category = categoryRepository.findByCategoryId(productRequest.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
 
             if (productRequest.getProductId() == null) {
