@@ -4,6 +4,7 @@ import com.radwija.jumpstartbackend.entity.Category;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Column;
 import javax.persistence.Lob;
@@ -14,6 +15,7 @@ public class ProductRequest {
     private Long productId;
     private String productName;
     private String slug;
+    private MultipartFile image;
     private String description;
     private BigDecimal price;
     private Long stock;

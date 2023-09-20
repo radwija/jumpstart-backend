@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -36,8 +39,28 @@ public class AdminController {
     }
 
     @PostMapping("/add-product")
-    public ResponseEntity<?> addProduct(@RequestBody ProductRequest request) {
+    public ResponseEntity<?> addProduct(
+            @RequestBody ProductRequest request,
+            @RequestParam("productName") String productName,
+            @RequestParam("slug") String slug,
+            @RequestParam("image") MultipartFile image,
+            @RequestParam("description") String description,
+            @RequestParam("price") BigDecimal price,
+            @RequestParam("stock") Long stock,
+            @RequestParam("weight") Double weight,
+            @RequestParam("categoryId") Long categoryId
+    ) {
         String currentUserEmail = userService.getCurrentUser().getEmail();
+
+        request.setProductName(productName);
+        request.setSlug(slug);
+        request.setImage(image);
+        request.setDescription(description);
+        request.setPrice(price);
+        request.setStock(stock);
+        request.setWeight(weight);
+        request.setCategoryId(categoryId);
+
         final BaseResponse<?> response = productService.saveProduct(currentUserEmail, request);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);

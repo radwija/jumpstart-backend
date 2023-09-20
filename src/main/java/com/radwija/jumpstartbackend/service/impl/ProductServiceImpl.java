@@ -17,8 +17,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.text.html.Option;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +57,7 @@ public class ProductServiceImpl implements ProductService {
                 Product newProduct = mapProductRequestToNewProduct(productRequest);
                 newProduct.setCategory(category);
                 newProduct.setSlug(handleUniqueSlug(newProduct, rawSlug));
+                setImageToProduct(newProduct, productRequest.getImage());
                 newProduct.setCreatedAt(new Date());
                 productRepository.save(newProduct);
 
@@ -65,6 +68,7 @@ public class ProductServiceImpl implements ProductService {
                 Product existingProduct = productRepository.findByProductId(productRequest.getProductId()).orElseThrow(() -> new ProductNotFoundException("Product not found"));
                 mapProductRequestToExistingProduct(productRequest, existingProduct);
                 existingProduct.setSlug(handleUniqueSlug(existingProduct, rawSlug));
+                setImageToProduct(existingProduct, productRequest.getImage());
                 existingProduct.setUpdatedAt(new Date());
                 productRepository.save(existingProduct);
 
@@ -178,6 +182,18 @@ public class ProductServiceImpl implements ProductService {
             return BaseResponse.ok("Product ID: " + productId + " deleted successfully.");
         } catch (RuntimeException e) {
             return BaseResponse.badRequest(e.getMessage());
+        }
+    }
+
+    @Override
+    public void setImageToProduct(Product product, MultipartFile image) {
+        if (image != null) {
+            try {
+                byte[] savedImage = image.getBytes();
+                product.setImage(savedImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

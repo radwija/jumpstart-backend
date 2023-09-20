@@ -3,6 +3,7 @@ package com.radwija.jumpstartbackend.service;
 import com.radwija.jumpstartbackend.entity.Product;
 import com.radwija.jumpstartbackend.payload.request.ProductRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -17,4 +18,5 @@ public interface ProductService {
     Product getProductDetailsBySlug(String slug);
     String handleUniqueSlug(Product product, String slug);
     BaseResponse<?> deleteProductByProductId(String currentUserEmail, Long productId);
+    void setImageToProduct(Product product, MultipartFile image);
 }
