@@ -60,11 +60,17 @@ public class CartServiceImpl implements CartService {
             Cart cart = cartRepository.findByUser(user)
                     .orElseThrow(() -> new CartNotFoundException("cart not found"));
             List<CartItem> cartItems = cart.getCartItems();
+            int itemNumbers = 0;
+
+            for (CartItem cartItem : cartItems) {
+                itemNumbers += cartItem.getQuantity();
+            }
 
             CartDto result = new CartDto();
             result.setCartId(cart.getCartId());
             result.setUserId(user.getUserId());
-            result.setItemNumbers(cartItems.size());
+            result.setCartSize(cartItems.size());
+            result.setItemNumbers(itemNumbers);
             result.setTotal(checkTotal(cartItems));
             result.setCartItems(cartItems);
 
