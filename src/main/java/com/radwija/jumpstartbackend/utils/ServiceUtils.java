@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class ServiceUtils {
     @Autowired
-    private UserRepository userRepository;
+    protected UserRepository userRepository;
 
     protected boolean isAdmin(String email) {
         return userRepository.existsByEmailAndRole(email, ERole.ROLE_ADMIN);

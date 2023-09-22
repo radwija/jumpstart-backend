@@ -14,6 +14,7 @@ import com.radwija.jumpstartbackend.repository.CartItemRepository;
 import com.radwija.jumpstartbackend.repository.ProductRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.CartItemService;
+import com.radwija.jumpstartbackend.utils.OrderUtils;
 import com.radwija.jumpstartbackend.utils.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,7 +24,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
-public class CartItemServiceImpl extends ServiceUtils implements CartItemService {
+public class CartItemServiceImpl extends OrderUtils implements CartItemService {
     @Autowired
     private UserRepository userRepository;
 
@@ -47,24 +48,18 @@ public class CartItemServiceImpl extends ServiceUtils implements CartItemService
             cartTotal = cartTotal.add(cartItem.getItemTotal());
         }
 
-        if ((itemTotal.add(cartTotal)).compareTo(CartServiceImpl.maxAmount) > 0) {
-            throw new OutOfCartMaxTotalException("Your cart total is greater than $9,999,999.99");
-        }
+        checkCartTotal(itemTotal, cartTotal);
 
+        String errorMessage;
         if (cartItemOfProduct != null) {
             int quantityOfCartItem = cartItemOfProduct.getQuantity();
-            if (quantityOfCartItem + quantityRequest > product.getStock()) {
-                throw new OutOfProductStockException("Only " + product.getStock() + " left and you already have " + quantityOfCartItem + " of this item in your cart.");
-            }
+            errorMessage = "Only " + product.getStock() + " left and you already have " + quantityOfCartItem + " of this item in your cart.";
+            checkProductStockWithCartItem(cartItemRequest, errorMessage);
             itemTotal = cartItemOfProduct.getItemTotal().add(BigDecimal.valueOf(quantityRequest).multiply(BigDecimal.valueOf(quantityOfCartItem)));
         } else {
-            if (cartItemRequest.getQuantity() > product.getStock()) {
-                throw new OutOfProductStockException("Maximum quantityRequest to purchase this item is " + product.getStock());
-            }
+            errorMessage = "Maximum quantityRequest to purchase this item is " + product.getStock();
+            checkProductStockWithCartItem(cartItemRequest, errorMessage);
         }
-
-        System.out.println("Item total: " + itemTotal.add(cartTotal));
-        System.out.println("Max: " + CartServiceImpl.maxAmount);
 
         return itemTotal;
     }
