@@ -1,6 +1,5 @@
 package com.radwija.jumpstartbackend.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +10,7 @@ import java.util.Date;
 
 @Entity
 @Setter @Getter @NoArgsConstructor
-public class Product {
+public class ProductDump {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
@@ -30,6 +29,5 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "product")
-    private CartItem cartItem;
+
 }

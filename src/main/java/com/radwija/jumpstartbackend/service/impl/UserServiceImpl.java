@@ -2,6 +2,7 @@ package com.radwija.jumpstartbackend.service.impl;
 
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.radwija.jumpstartbackend.constraint.ERole;
+import com.radwija.jumpstartbackend.entity.Cart;
 import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.entity.UserProfile;
 import com.radwija.jumpstartbackend.exception.CredentialAlreadyTakenException;
@@ -12,6 +13,7 @@ import com.radwija.jumpstartbackend.repository.UserProfileRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.EmailSenderService;
 import com.radwija.jumpstartbackend.service.UserService;
+import com.radwija.jumpstartbackend.utils.ServiceUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +25,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends ServiceUtils implements UserService {
     @Autowired
     private UserRepository userRepository;
 
@@ -49,6 +51,7 @@ public class UserServiceImpl implements UserService {
 
             User newUser = new User();
             UserProfile userProfile = new UserProfile();
+            Cart cart = new Cart();
 
             BeanUtils.copyProperties(request, newUser);
             BeanUtils.copyProperties(request, userProfile);
@@ -64,7 +67,9 @@ public class UserServiceImpl implements UserService {
             newUser.setRegisteredAt(new Date());
 
             userProfile.setUser(newUser);
+            cart.setUser(newUser);
             newUser.setUserProfile(userProfile);
+            newUser.setCart(cart);
 
             userRepository.save(newUser);
 
@@ -88,9 +93,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getCurrentUser() {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        userRepository.findByEmail(currentUserEmail);
-        return userRepository.findByEmail(currentUserEmail).orElseThrow(()-> new UsernameNotFoundException("current user not found"));
+        return super.getCurrentUser();
     }
 
     @Override

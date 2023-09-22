@@ -40,4 +40,8 @@ public class User {
     @JsonBackReference
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private UserProfile userProfile;
+
+    @JsonBackReference
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    private Cart cart;
 }
