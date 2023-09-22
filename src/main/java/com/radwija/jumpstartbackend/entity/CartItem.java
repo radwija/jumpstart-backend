@@ -9,6 +9,7 @@ import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Entity
 @Setter @Getter @NoArgsConstructor
@@ -20,6 +21,9 @@ public class CartItem {
     private int quantity;
     @Transient
     private BigDecimal itemTotal;
+
+    private Date createdAt;
+    private Date updatedAt;
 
     @OneToOne
     @Cascade(CascadeType.ALL)

@@ -10,4 +10,5 @@ public interface CartService {
 
     BigDecimal checkTotal(List<CartItem> items);
     BaseResponse<?> addProductToCart(String currentUserEmail, Long productId);
+    BaseResponse<?> getMyCart(String email);
 }

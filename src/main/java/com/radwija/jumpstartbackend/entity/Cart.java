@@ -27,4 +27,12 @@ public class Cart {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public BigDecimal getTotal() {
+        BigDecimal total = BigDecimal.valueOf(0);
+        for (CartItem cartItem : cartItems) {
+            total = total.add(cartItem.getItemTotal());
+        }
+        return total;
+    }
 }

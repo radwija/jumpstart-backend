@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -92,6 +93,7 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
                     cartItem.setQuantity(cartItem.getQuantity() + cartItemRequest.getQuantity());
                 }
                 cartItem.setCart(cart);
+                cartItem.setUpdatedAt(new Date());
 
                 cartItemRepository.save(cartItem);
 
@@ -104,6 +106,7 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
                 newCartItem.setQuantity(cartItemRequest.getQuantity());
                 newCartItem.setItemTotal(checkItemTotal(cartItemRequest));
                 newCartItem.setCart(cart);
+                newCartItem.setCreatedAt(new Date());
 
                 cartItemRepository.save(newCartItem);
 

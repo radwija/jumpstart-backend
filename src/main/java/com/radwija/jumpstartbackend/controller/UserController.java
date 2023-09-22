@@ -61,4 +61,14 @@ public class UserController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    @GetMapping("/get-my-cart")
+    public ResponseEntity<?> getMyCart() {
+        String currentUserEmail = userService.getCurrentUser().getEmail();
+        final BaseResponse<?> response = cartService.getMyCart(currentUserEmail);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }
