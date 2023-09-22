@@ -35,7 +35,7 @@ public class CartServiceImpl implements CartService {
     public BigDecimal checkTotal(List<CartItem> items) {
         BigDecimal total = BigDecimal.valueOf(0);
         for (CartItem cartItem : items) {
-            total = total.add(cartItem.getItemTotal());
+            total = total.add(cartItem.getItemPriceTotal());
         }
 
         if (total.compareTo(maxAmount) > 0) {

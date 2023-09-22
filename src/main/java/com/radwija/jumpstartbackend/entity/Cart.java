@@ -31,7 +31,7 @@ public class Cart {
     public BigDecimal getTotal() {
         BigDecimal total = BigDecimal.valueOf(0);
         for (CartItem cartItem : cartItems) {
-            total = total.add(cartItem.getItemTotal());
+            total = total.add(cartItem.getItemPriceTotal());
         }
         return total;
     }

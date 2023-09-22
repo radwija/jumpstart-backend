@@ -20,7 +20,7 @@ public class CartItem {
 
     private int quantity;
     @Transient
-    private BigDecimal itemTotal;
+    private BigDecimal itemPriceTotal;
 
     private Date createdAt;
     private Date updatedAt;
@@ -36,7 +36,7 @@ public class CartItem {
     @JsonBackReference
     private Cart cart;
 
-    public BigDecimal getItemTotal() {
+    public BigDecimal getItemPriceTotal() {
         return product.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
 }
