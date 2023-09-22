@@ -31,5 +31,6 @@ public class Product {
     private Category category;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "product")
+    @JsonBackReference
     private CartItem cartItem;
 }

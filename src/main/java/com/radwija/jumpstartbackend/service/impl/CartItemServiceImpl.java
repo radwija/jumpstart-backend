@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class CartItemServiceImpl extends ServiceUtils implements CartItemService {
@@ -34,34 +35,38 @@ public class CartItemServiceImpl extends ServiceUtils implements CartItemService
 
     @Override
     public BigDecimal checkItemTotal(CartItemRequest cartItemRequest) {
-//        try {
-        BigDecimal itemTotal;
-        int quantity = cartItemRequest.getQuantity();
+        int quantityRequest = cartItemRequest.getQuantity();
         Product product = productRepository.findByProductId(cartItemRequest.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("product not found"));
-        CartItem cartItem = cartItemRepository.findByProduct(product);
+        BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(quantityRequest));;
+        CartItem cartItemOfProduct = cartItemRepository.findByProduct(product);
         Cart cart = getCurrentUser().getCart();
-        if (cartItem != null) {
-            itemTotal = cartItem.getItemTotal();
-            if ((cartItem.getQuantity() + cartItemRequest.getQuantity()) > product.getStock()) {
-                throw new OutOfProductStockException("Your item quantity in your cart is out of stock.");
-            }
-        } else {
-            itemTotal = product.getPrice().multiply(BigDecimal.valueOf(quantity));
-            if (cartItemRequest.getQuantity() > product.getStock()) {
-                throw new OutOfProductStockException("Quantity is out of stock.");
-            }
+        List<CartItem> cartItems = cart.getCartItems();
+        BigDecimal cartTotal = BigDecimal.valueOf(0);
+        for (CartItem cartItem : cartItems) {
+            cartTotal = cartTotal.add(cartItem.getItemTotal());
         }
 
-        if ((itemTotal.add(cart.getTotal())).compareTo(CartServiceImpl.maxAmount) > 0) {
+        if ((itemTotal.add(cartTotal)).compareTo(CartServiceImpl.maxAmount) > 0) {
             throw new OutOfCartMaxTotalException("Your cart total is greater than $9,999,999.99");
         }
 
+        if (cartItemOfProduct != null) {
+            int quantityOfCartItem = cartItemOfProduct.getQuantity();
+            if (quantityOfCartItem + quantityRequest > product.getStock()) {
+                throw new OutOfProductStockException("Only " + product.getStock() + " left and you already have " + quantityOfCartItem + " of this item in your cart.");
+            }
+            itemTotal = cartItemOfProduct.getItemTotal().add(BigDecimal.valueOf(quantityRequest).multiply(BigDecimal.valueOf(quantityOfCartItem)));
+        } else {
+            if (cartItemRequest.getQuantity() > product.getStock()) {
+                throw new OutOfProductStockException("Maximum quantityRequest to purchase this item is " + product.getStock());
+            }
+        }
+
+        System.out.println("Item total: " + itemTotal.add(cartTotal));
+        System.out.println("Max: " + CartServiceImpl.maxAmount);
+
         return itemTotal;
-//        } catch (RuntimeException e) {
-//            System.out.println(e.getMessage());
-//            return null;
-//        }
     }
 
     @Override
@@ -77,21 +82,34 @@ public class CartItemServiceImpl extends ServiceUtils implements CartItemService
                 throw new CartNotFoundException("cart not found");
             }
             System.out.println("Cart ID: " + cart.getCartId());
-            System.out.println("Owned by: " + cart.getUser().getUserId());
+            System.out.println(product.getProductId());
+            System.out.println("Owned by: " + cart.getUser().getEmail());
 
             CartItem cartItem = cartItemRepository.findByProduct(product);
-            if (cartItem == null) {
-                CartItem newCartItem = new CartItem();
+            if (cartItem != null) {
+                cartItem.setProduct(product);
+                cartItem.setItemTotal(checkItemTotal(cartItemRequest));
+                cartItem.setQuantity(cartItem.getQuantity() + cartItemRequest.getQuantity());
+                cartItem.setCart(cart);
 
+                cartItemRepository.save(cartItem);
+
+                response.setCode(200);
+                response.setMessage("Product added to cart successfully!");
+                response.setResult(cartItem);
             } else {
+                CartItem newCartItem = new CartItem();
+                newCartItem.setProduct(product);
+                newCartItem.setQuantity(cartItemRequest.getQuantity());
+                newCartItem.setItemTotal(checkItemTotal(cartItemRequest));
+                newCartItem.setCart(cart);
 
+                cartItemRepository.save(newCartItem);
+
+                response.setCode(200);
+                response.setMessage("Product added to cart successfully!");
+                response.setResult(newCartItem);
             }
-            checkItemTotal(cartItemRequest);
-            cartItem.setProduct(product);
-            cartItem.setQuantity(cartItem.getQuantity());
-            cartItem.setCart(cart);
-
-            cartItemRepository.save(cartItem);
 
             return response;
         } catch (RuntimeException e) {

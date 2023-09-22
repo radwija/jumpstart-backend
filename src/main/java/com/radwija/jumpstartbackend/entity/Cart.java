@@ -19,6 +19,7 @@ public class Cart {
     @Transient
     private BigDecimal total;
 
+    @JsonBackReference
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
     private List<CartItem> cartItems;
 
@@ -26,6 +27,4 @@ public class Cart {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
-
-    private void setTotal(BigDecimal total) {}
 }

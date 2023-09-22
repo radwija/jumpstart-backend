@@ -1,7 +1,9 @@
 package com.radwija.jumpstartbackend.controller;
 
+import com.radwija.jumpstartbackend.payload.request.CartItemRequest;
 import com.radwija.jumpstartbackend.payload.request.UpdateUserRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
+import com.radwija.jumpstartbackend.service.CartItemService;
 import com.radwija.jumpstartbackend.service.CartService;
 import com.radwija.jumpstartbackend.service.UserProfileService;
 import com.radwija.jumpstartbackend.service.UserService;
@@ -21,6 +23,9 @@ public class UserController {
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private CartItemService cartItemService;
+
     @GetMapping("/me")
     public ResponseEntity<?> userProfile() {
         return ResponseEntity.ok(userService.getCurrentUser().getUserProfile());
@@ -37,12 +42,10 @@ public class UserController {
         return ResponseEntity.badRequest().body(response);
     }
 
-    @GetMapping("/add-to-cart/{productId}")
-    public ResponseEntity<?> addToCart(@PathVariable("productId") String productIdStr) {
-        Long productId = Long.parseLong(productIdStr);
+    @PostMapping("/add-product-to-cart")
+    public ResponseEntity<?> addToCart(@RequestBody CartItemRequest request) {
         String currentUserEmail = userService.getCurrentUser().getEmail();
-        final BaseResponse<?> response = cartService.addProductToCart(currentUserEmail, productId);
-
+        final BaseResponse<?> response = cartItemService.saveCartItem(currentUserEmail, request);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }

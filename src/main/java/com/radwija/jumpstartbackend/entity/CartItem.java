@@ -1,5 +1,6 @@
 package com.radwija.jumpstartbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,15 +24,15 @@ public class CartItem {
     @OneToOne
     @Cascade(CascadeType.ALL)
     @JoinColumn(name = "product_id")
+//    @JsonBackReference
     private Product product;
 
     @ManyToOne
     @JoinColumn(name = "cart_id")
+    @JsonBackReference
     private Cart cart;
 
     public BigDecimal getItemTotal() {
         return product.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
-
-    private void setItemTotal(BigDecimal itemTotal) {}
 }
