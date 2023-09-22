@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(uniqueConstraints = {
@@ -44,4 +45,8 @@ public class User {
     @JsonBackReference
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Cart cart;
+
+    @JsonBackReference
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Order> orders;
 }

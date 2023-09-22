@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Setter @Getter @NoArgsConstructor
@@ -33,4 +34,8 @@ public class Product {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "product")
     @JsonBackReference
     private CartItem cartItem;
+
+    @OneToMany(cascade = {CascadeType.DETACH}, mappedBy = "product")
+    @JsonBackReference
+    private List<ProductSnapshot> productSnapshots;
 }

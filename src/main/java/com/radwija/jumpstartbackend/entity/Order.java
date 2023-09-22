@@ -1,7 +1,32 @@
 package com.radwija.jumpstartbackend.entity;
 
-import javax.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-//@Entity
-//public class Order {
-//}
+import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+@Setter
+@Getter
+@NoArgsConstructor
+@Table(name = "_order")
+public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long orderId;
+    private Date createdAt;
+    private Date updatedAt;
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<ProductSnapshot> productSnapshots;
+
+    @JsonBackReference
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
+}
