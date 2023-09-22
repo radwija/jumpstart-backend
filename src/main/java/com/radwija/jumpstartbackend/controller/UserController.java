@@ -51,4 +51,14 @@ public class UserController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    @PostMapping("/set-item-quantity")
+    public ResponseEntity<?> setItemQuantity(@RequestBody CartItemRequest request) {
+        String currentUserEmail = userService.getCurrentUser().getEmail();
+        final BaseResponse<?> response = cartItemService.saveCartItem(currentUserEmail, request);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }

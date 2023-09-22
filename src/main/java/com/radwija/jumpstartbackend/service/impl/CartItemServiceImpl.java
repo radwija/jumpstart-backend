@@ -4,10 +4,7 @@ import com.radwija.jumpstartbackend.entity.Cart;
 import com.radwija.jumpstartbackend.entity.CartItem;
 import com.radwija.jumpstartbackend.entity.Product;
 import com.radwija.jumpstartbackend.entity.User;
-import com.radwija.jumpstartbackend.exception.CartNotFoundException;
-import com.radwija.jumpstartbackend.exception.OutOfCartMaxTotalException;
-import com.radwija.jumpstartbackend.exception.OutOfProductStockException;
-import com.radwija.jumpstartbackend.exception.ProductNotFoundException;
+import com.radwija.jumpstartbackend.exception.*;
 import com.radwija.jumpstartbackend.payload.request.CartItemRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.repository.CartItemRepository;
@@ -37,9 +34,13 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
     @Override
     public BigDecimal checkItemTotal(CartItemRequest cartItemRequest) {
         int quantityRequest = cartItemRequest.getQuantity();
+        if (quantityRequest <= 0) {
+            throw new InvalidInputException("Quantity input is invalid.");
+        }
         Product product = productRepository.findByProductId(cartItemRequest.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("product not found"));
-        BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(quantityRequest));;
+        BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(quantityRequest));
+
         CartItem cartItemOfProduct = cartItemRepository.findByProduct(product);
         Cart cart = getCurrentUser().getCart();
         List<CartItem> cartItems = cart.getCartItems();
@@ -47,8 +48,6 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
         for (CartItem cartItem : cartItems) {
             cartTotal = cartTotal.add(cartItem.getItemTotal());
         }
-
-        checkCartTotal(itemTotal, cartTotal);
 
         String errorMessage;
         if (cartItemOfProduct != null) {
@@ -60,6 +59,8 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
             errorMessage = "Maximum quantityRequest to purchase this item is " + product.getStock();
             checkProductStockWithCartItem(cartItemRequest, errorMessage);
         }
+
+        checkCartTotal(itemTotal, cartTotal);
 
         return itemTotal;
     }
@@ -82,9 +83,14 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
 
             CartItem cartItem = cartItemRepository.findByProduct(product);
             if (cartItem != null) {
+                String requestFrom = "FROM_CART";
                 cartItem.setProduct(product);
                 cartItem.setItemTotal(checkItemTotal(cartItemRequest));
-                cartItem.setQuantity(cartItem.getQuantity() + cartItemRequest.getQuantity());
+                if (cartItemRequest.getRequestFrom() != null && cartItemRequest.getRequestFrom().equals(requestFrom)) {
+                    cartItem.setQuantity(cartItemRequest.getQuantity());
+                } else {
+                    cartItem.setQuantity(cartItem.getQuantity() + cartItemRequest.getQuantity());
+                }
                 cartItem.setCart(cart);
 
                 cartItemRepository.save(cartItem);
@@ -107,7 +113,7 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
             }
 
             return response;
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return BaseResponse.badRequest(e.getMessage());
         }
     }
