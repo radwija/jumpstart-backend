@@ -71,4 +71,15 @@ public class UserController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    @DeleteMapping("/delete-cart-item/{cartItemId}")
+    public ResponseEntity<?> deleteProductByProductId(@PathVariable("cartItemId") String cartItemIdStr) {
+        Long cartItemId = Long.parseLong(cartItemIdStr);
+        String currentUserEmail = userService.getCurrentUser().getEmail();
+        BaseResponse<?> response = cartItemService.deleteCartItemById(currentUserEmail, cartItemId);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }

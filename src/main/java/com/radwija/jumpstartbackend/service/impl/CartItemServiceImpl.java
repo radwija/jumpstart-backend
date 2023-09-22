@@ -119,4 +119,21 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
             return BaseResponse.badRequest(e.getMessage());
         }
     }
+
+    @Override
+    public BaseResponse<?> deleteCartItemById(String email, Long cartItemId) {
+        try {
+            CartItem deletedCartItem = cartItemRepository.findById(cartItemId)
+                    .orElseThrow(() -> new CartItemNotFoundException("Cart item not found"));
+            String ownerEmail = deletedCartItem.getCart().getUser().getEmail();
+            if (email != ownerEmail) {
+                throw new RefusedActionException("Access denied");
+            }
+            cartItemRepository.deleteById(cartItemId);
+            return BaseResponse.ok("Cart item ID " + cartItemId + " deleted successfully.");
+        } catch (Exception e) {
+            return BaseResponse.badRequest(e.getMessage());
+        }
+
+    }
 }
