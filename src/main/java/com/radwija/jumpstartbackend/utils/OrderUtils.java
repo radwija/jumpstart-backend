@@ -41,7 +41,13 @@ public class OrderUtils extends ServiceUtils {
 
         if (cartItemOfProduct != null) {
             int quantityOfCartItem = cartItemOfProduct.getQuantity();
-            if (quantityOfCartItem + quantityRequest > productStock) {
+            int checkedQuantity = 0;
+            if (cartItemRequest.getRequestFrom() != null && cartItemRequest.getRequestFrom().equals("FROM_CART")) {
+                checkedQuantity = quantityRequest;
+            } else {
+                checkedQuantity = quantityOfCartItem + quantityRequest;
+            }
+            if (checkedQuantity > productStock) {
                 throw new OutOfProductStockException(message);
             }
         } else {
