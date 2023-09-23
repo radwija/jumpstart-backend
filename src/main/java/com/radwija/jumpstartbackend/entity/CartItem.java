@@ -25,8 +25,7 @@ public class CartItem {
     private Date createdAt;
     private Date updatedAt;
 
-    @OneToOne
-    @Cascade(CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "product_id")
 //    @JsonBackReference
     private Product product;

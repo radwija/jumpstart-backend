@@ -31,9 +31,9 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "product")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
     @JsonBackReference
-    private CartItem cartItem;
+    private List<CartItem> cartItem;
 
     @OneToMany(cascade = {CascadeType.DETACH}, mappedBy = "product")
     @JsonBackReference
