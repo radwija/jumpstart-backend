@@ -101,17 +101,16 @@ public class TransactionServiceImpl implements TransactionService {
                 }
 
                 String captureId = capture.id();
-                System.out.println("capture here");
-                System.out.println(capture.amount().toString());
-                System.out.println(capture.captureStatusDetails()); //null
-                System.out.println(capture.createTime());
-                System.out.println(capture.finalCapture());
-                System.out.println(capture.id());
-                System.out.println(capture.invoiceId());
-                System.out.println(Arrays.toString(capture.links().toArray()));
-                System.out.println(capture.sellerProtection());
-                System.out.println(capture.status());
-                System.out.println(capture.updateTime());
+                System.out.println("amount() " + capture.amount().value());
+                System.out.println("captureStatusDetails() " + capture.captureStatusDetails()); //null
+                System.out.println("createTime() " + capture.createTime());
+                System.out.println("finalCapture() " + capture.finalCapture());
+                System.out.println("id() " + capture.id());
+                System.out.println("invoiceId() " + capture.invoiceId());
+                System.out.println("links() " + capture.links());
+                System.out.println("sellerProtection() " + capture.sellerProtection());
+                System.out.println("status() " + capture.status());
+                System.out.println("updateTime() " + capture.updateTime());
                 System.out.println("captureId: " + captureId);
                 return BaseResponse.ok("success", capture);
             }

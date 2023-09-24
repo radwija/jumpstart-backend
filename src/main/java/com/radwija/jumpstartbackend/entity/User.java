@@ -25,6 +25,7 @@ public class User {
 
     private String email;
 
+    @JsonIgnore
     @Column(unique = true)
     private String uuid;
 

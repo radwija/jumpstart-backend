@@ -1,7 +1,6 @@
 package com.radwija.jumpstartbackend.controller;
 
-import com.radwija.jumpstartbackend.payload.request.LoginRequest;
-import com.radwija.jumpstartbackend.payload.request.UserRegisterRequest;
+import com.radwija.jumpstartbackend.payload.request.*;
 import com.radwija.jumpstartbackend.payload.response.AuthResponse;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.security.jwt.JwtUtil;
@@ -82,6 +81,33 @@ public class AuthController {
     @GetMapping("/account-activation/{uuid}")
     public ResponseEntity<?> activateUser(@PathVariable("uuid") String uuid) {
         final BaseResponse<?> response = userService.activateUser(uuid);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @GetMapping("/acc")
+    public ResponseEntity<?> findAccountByUuid(@RequestParam("find") String uuid) {
+        final BaseResponse<?> response = userService.findAccountByUuid(uuid);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @PostMapping("/find-account")
+    public ResponseEntity<?> findAccountByEmail(@RequestBody FindAccountRequest findAccountRequest) {
+        final BaseResponse<?> response = userService.updateUuidResetPassword(findAccountRequest.getEmail());
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        final BaseResponse<?> response = userService.updatePassword(updatePasswordRequest);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }

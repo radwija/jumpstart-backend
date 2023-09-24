@@ -7,6 +7,7 @@ import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.entity.UserProfile;
 import com.radwija.jumpstartbackend.exception.CredentialAlreadyTakenException;
 import com.radwija.jumpstartbackend.exception.UserNotFoundException;
+import com.radwija.jumpstartbackend.payload.request.UpdatePasswordRequest;
 import com.radwija.jumpstartbackend.payload.request.UserRegisterRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.repository.UserProfileRepository;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -107,7 +109,7 @@ public class UserServiceImpl extends ServiceUtils implements UserService {
         try {
             User activatedUser = userRepository.findByUuid(uuid);
             if (activatedUser == null) {
-                throw new UserNotFoundException("Account not found:(");
+                throw new UserNotFoundException("Account not found.");
             }
 
             activatedUser.setIsActive(true);
@@ -123,5 +125,73 @@ public class UserServiceImpl extends ServiceUtils implements UserService {
             response.setMessage(e.getMessage());
             return response;
         }
+    }
+
+    @Override
+    public BaseResponse<?> findAccountByUuid(String uuid) {
+        try {
+            User user = userRepository.findByUuid(uuid);
+            if (user == null) {
+                throw  new UserNotFoundException("User not found.");
+            }
+            return BaseResponse.ok(user);
+        } catch (Exception e) {
+            return BaseResponse.notFound(e.getMessage());
+        }
+    }
+
+    @Override
+    public BaseResponse<?> updateUuidResetPassword(String email) {
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException("Account not found with email " + email));
+            String fullName = user.getUserProfile().getFirstName() + " " + user.getUserProfile().getLastName();
+
+            UUID updatedUuid = UUID.randomUUID();
+            String parsedUuid = updatedUuid.toString();
+            user.setUuid(parsedUuid);
+            userRepository.save(user);
+
+            String emailContent =
+                    "Dear " + fullName + ",\n\n" +
+                            "We recently received a request to reset your password for your Jumpstart E-commerce account. To proceed with resetting your password, please click the link below:\n\n" +
+                            "http://localhost:3000/reset-password?reset=" + parsedUuid + "\n\n" +
+                            "If you didn't initiate this request, you can safely ignore this email and your password will remain unchanged.\n\n" +
+                            "Thank you for using Jumpstart E-commerce!\n\n" +
+                            "Best Regards,\n" +
+                            "The Jumpstart E-commerce Team";
+
+            emailSenderService.sendMail(
+                    email,
+                    "Reset Password Link",
+                    emailContent
+            );
+            return BaseResponse.ok("Reset password link has sent to your email.");
+        } catch (Exception e) {
+            return BaseResponse.badRequest(e.getMessage());
+        }
+
+    }
+
+    @Override
+    public BaseResponse<?> updatePassword(UpdatePasswordRequest updatePasswordRequest) {
+        try {
+            User user = userRepository.findByUuid(updatePasswordRequest.getUuid());
+            if (user == null) {
+                throw new UserNotFoundException("User not found.");
+            }
+
+            String encodedPassword = passwordEncoder.encode(updatePasswordRequest.getPassword());
+            UUID updatedUuid = UUID.randomUUID();
+
+            user.setPassword(encodedPassword);
+            user.setUuid(updatedUuid.toString());
+            userRepository.save(user);
+
+            return BaseResponse.ok("Password updated successfully!");
+        } catch (Exception e) {
+            return BaseResponse.badRequest(e.getMessage());
+        }
+
     }
 }
