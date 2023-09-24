@@ -58,8 +58,8 @@ public class TransactionServiceImpl implements TransactionService {
                 // TODO: save token from capture?token=[token] to database so admin can complete and cancel
                 // complete = execute this end point (/capture?token)
                 // cancel = find out token expiration or set null token in database
-                .returnUrl("https://localhost:3000/capture")
-                .cancelUrl("https://localhost:3000/cancel");
+                .returnUrl("http://localhost:3000/capture")
+                .cancelUrl("http://localhost:3000/cancel");
         orderRequest.applicationContext(applicationContext);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
         try {
@@ -72,7 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .orElseThrow(NoSuchElementException::new)
                     .href();
 
-            return BaseResponse.ok(redirectUrl);
+            return BaseResponse.ok("success", redirectUrl);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return BaseResponse.badRequest(e.getMessage());

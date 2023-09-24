@@ -7,15 +7,13 @@ import com.radwija.jumpstartbackend.service.TransactionService;
 import com.radwija.jumpstartbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/paypal")
+@CrossOrigin(origins = "http://localhost:3000")
 public class TransactionController {
     @Autowired
     private TransactionService transactionService;
@@ -26,7 +24,7 @@ public class TransactionController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/init")
+    @GetMapping("/init")
     public ResponseEntity<?> createPayment() {
 //        BigDecimal sum = new BigDecimal(sumStr);
         User user = userService.getCurrentUser();
@@ -41,7 +39,7 @@ public class TransactionController {
     // TODO: use this end point to trigger complete order or cancel
     // complete = execute this end point
     // cancel = find out token expiration or set null token in database
-    @PostMapping("/capture")
+    @GetMapping("/capture")
     public ResponseEntity<?> completePayment(@RequestParam("token") String token) {
         User user = userService.getCurrentUser();
         BaseResponse<?> response = transactionService.completePayment(user, token);
