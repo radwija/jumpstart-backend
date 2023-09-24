@@ -5,7 +5,7 @@ import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 
 import java.math.BigDecimal;
 
-public interface CartItemService {
+public interface ItemService {
     BigDecimal checkItemTotal(ItemRequest itemRequest);
     BaseResponse<?> saveCartItem(String email, ItemRequest itemRequest);
     BaseResponse<?> deleteCartItemById(String email, Long cartItemId);

@@ -3,7 +3,7 @@ package com.radwija.jumpstartbackend.controller;
 import com.radwija.jumpstartbackend.payload.request.ItemRequest;
 import com.radwija.jumpstartbackend.payload.request.UpdateUserRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
-import com.radwija.jumpstartbackend.service.CartItemService;
+import com.radwija.jumpstartbackend.service.ItemService;
 import com.radwija.jumpstartbackend.service.CartService;
 import com.radwija.jumpstartbackend.service.UserProfileService;
 import com.radwija.jumpstartbackend.service.UserService;
@@ -24,7 +24,7 @@ public class UserController {
     private CartService cartService;
 
     @Autowired
-    private CartItemService cartItemService;
+    private ItemService itemService;
 
     @GetMapping("/me")
     public ResponseEntity<?> userProfile() {
@@ -45,7 +45,7 @@ public class UserController {
     @PostMapping("/add-product-to-cart")
     public ResponseEntity<?> addToCart(@RequestBody ItemRequest request) {
         String currentUserEmail = userService.getCurrentUser().getEmail();
-        final BaseResponse<?> response = cartItemService.saveCartItem(currentUserEmail, request);
+        final BaseResponse<?> response = itemService.saveCartItem(currentUserEmail, request);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }
@@ -55,7 +55,7 @@ public class UserController {
     @PostMapping("/set-item-quantity")
     public ResponseEntity<?> setItemQuantity(@RequestBody ItemRequest request) {
         String currentUserEmail = userService.getCurrentUser().getEmail();
-        final BaseResponse<?> response = cartItemService.saveCartItem(currentUserEmail, request);
+        final BaseResponse<?> response = itemService.saveCartItem(currentUserEmail, request);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }
@@ -76,7 +76,7 @@ public class UserController {
     public ResponseEntity<?> deleteProductByProductId(@PathVariable("cartItemId") String cartItemIdStr) {
         Long cartItemId = Long.parseLong(cartItemIdStr);
         String currentUserEmail = userService.getCurrentUser().getEmail();
-        BaseResponse<?> response = cartItemService.deleteCartItemById(currentUserEmail, cartItemId);
+        BaseResponse<?> response = itemService.deleteCartItemById(currentUserEmail, cartItemId);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }

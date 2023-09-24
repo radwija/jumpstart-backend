@@ -11,7 +11,7 @@ import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.repository.ItemRepository;
 import com.radwija.jumpstartbackend.repository.ProductRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
-import com.radwija.jumpstartbackend.service.CartItemService;
+import com.radwija.jumpstartbackend.service.ItemService;
 import com.radwija.jumpstartbackend.utils.OrderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class CartItemServiceImpl extends OrderUtils implements CartItemService {
+public class ItemServiceImpl extends OrderUtils implements ItemService {
     @Autowired
     private UserRepository userRepository;
 
