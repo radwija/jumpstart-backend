@@ -64,6 +64,10 @@ public class CartServiceImpl implements CartService {
             int itemNumbers = 0;
 
             for (Item item : items) {
+                if (item.getQuantity() > item.getProduct().getStock()) {
+                    item.setQuantity(item.getProduct().getStock().intValue());
+                    itemRepository.save(item);
+                }
                 itemNumbers += item.getQuantity();
             }
 

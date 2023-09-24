@@ -96,6 +96,7 @@ public class TransactionServiceImpl implements TransactionService {
 
                 for (com.radwija.jumpstartbackend.entity.Item item : items) {
                     item.setStatus(EItemStatus.PURCHASED);
+                    item.setProduct(null);
                     itemRepository.save(item);
                 }
 
