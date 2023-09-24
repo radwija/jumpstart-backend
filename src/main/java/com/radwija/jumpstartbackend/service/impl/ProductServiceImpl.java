@@ -174,6 +174,7 @@ public class ProductServiceImpl implements ProductService {
             if (!productRepository.existsByProductId(productId)) {
                 throw new ProductNotFoundException("Product not found.");
             }
+            // TODO: set null to items that have TRANSACTION_SUCCESS status
             productRepository.deleteById(productId);
             return BaseResponse.ok("Product ID: " + productId + " deleted successfully.");
         } catch (RuntimeException e) {

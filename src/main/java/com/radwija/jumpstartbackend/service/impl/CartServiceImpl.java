@@ -66,6 +66,7 @@ public class CartServiceImpl implements CartService {
                 itemNumbers += cartItem.getQuantity();
             }
 
+            // TODO: show items that don't have null in product_id and have TRANSACTION_SUCCESS
             CartDto result = new CartDto();
             result.setCartId(cart.getCartId());
             result.setUserId(user.getUserId());
