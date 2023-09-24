@@ -1,8 +1,10 @@
 package com.radwija.jumpstartbackend.controller;
 
 import com.paypal.core.PayPalHttpClient;
+import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.service.TransactionService;
+import com.radwija.jumpstartbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,10 +23,15 @@ public class TransactionController {
     @Autowired
     private PayPalHttpClient payPalHttpClient;
 
+    @Autowired
+    private UserService userService;
+
     @PostMapping("/init")
-    public ResponseEntity<?> createPayment(@RequestParam("sum") String sumStr) {
-        BigDecimal sum = new BigDecimal(sumStr);
-        BaseResponse<?> response = transactionService.createPayment(sum);
+    public ResponseEntity<?> createPayment() {
+//        BigDecimal sum = new BigDecimal(sumStr);
+        User user = userService.getCurrentUser();
+
+        BaseResponse<?> response = transactionService.createPayment(user);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }
@@ -36,7 +43,8 @@ public class TransactionController {
     // cancel = find out token expiration or set null token in database
     @PostMapping("/capture")
     public ResponseEntity<?> completePayment(@RequestParam("token") String token) {
-        BaseResponse<?> response = transactionService.completePayment(token);
+        User user = userService.getCurrentUser();
+        BaseResponse<?> response = transactionService.completePayment(user, token);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }

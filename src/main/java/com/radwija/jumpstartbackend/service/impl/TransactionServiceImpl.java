@@ -3,7 +3,14 @@ package com.radwija.jumpstartbackend.service.impl;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
+import com.radwija.jumpstartbackend.constraint.EItemStatus;
+import com.radwija.jumpstartbackend.entity.Cart;
+import com.radwija.jumpstartbackend.entity.User;
+import com.radwija.jumpstartbackend.exception.CartNotFoundException;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
+import com.radwija.jumpstartbackend.repository.CartRepository;
+import com.radwija.jumpstartbackend.repository.ItemRepository;
+import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.TransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +27,31 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private PayPalHttpClient payPalHttpClient;
 
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
-    public BaseResponse<?> createPayment(BigDecimal fee) {
+    public BaseResponse<?> createPayment(User user) {
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new CartNotFoundException("Cart not found."));
+        List<com.radwija.jumpstartbackend.entity.Item>
+                items = itemRepository.findByCartAndProductIsNotNullAndStatus(cart, EItemStatus.IN_CART);
+        BigDecimal total = new BigDecimal("0");
+
+        for (com.radwija.jumpstartbackend.entity.Item item : items) {
+            total = total.add(item.getItemPriceTotal());
+        }
+
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
 
-        AmountWithBreakdown amountBreakdown = new AmountWithBreakdown().currencyCode("USD").value(fee.toString());
+        AmountWithBreakdown amountBreakdown = new AmountWithBreakdown().currencyCode("USD").value(total.toString());
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
@@ -54,8 +80,12 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public BaseResponse<?> completePayment(String token) {
+    public BaseResponse<?> completePayment(User user, String token) {
         OrdersCaptureRequest ordersCreateRequest = new OrdersCaptureRequest(token);
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new CartNotFoundException("Cart not found."));
+        List<com.radwija.jumpstartbackend.entity.Item>
+                items = itemRepository.findByCartAndProductIsNotNullAndStatus(cart, EItemStatus.IN_CART);
         try {
             HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCreateRequest);
             Order order = httpResponse.result();
@@ -63,6 +93,12 @@ public class TransactionServiceImpl implements TransactionService {
             if (httpResponse.result().status() != null) {
                 PurchaseUnit purchaseUnit = purchaseUnits.get(0);
                 Capture capture = purchaseUnit.payments().captures().get(0);
+
+                for (com.radwija.jumpstartbackend.entity.Item item : items) {
+                    item.setStatus(EItemStatus.PURCHASED);
+                    itemRepository.save(item);
+                }
+
                 String captureId = capture.id();
                 System.out.println("capture here");
                 System.out.println(capture.amount().toString());
