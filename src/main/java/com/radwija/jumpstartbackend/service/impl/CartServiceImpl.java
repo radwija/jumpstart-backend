@@ -1,13 +1,13 @@
 package com.radwija.jumpstartbackend.service.impl;
 
 import com.radwija.jumpstartbackend.entity.Cart;
-import com.radwija.jumpstartbackend.entity.CartItem;
+import com.radwija.jumpstartbackend.entity.Item;
 import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.exception.CartNotFoundException;
 import com.radwija.jumpstartbackend.exception.OutOfCartMaxTotalException;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.payload.response.CartDto;
-import com.radwija.jumpstartbackend.repository.CartItemRepository;
+import com.radwija.jumpstartbackend.repository.ItemRepository;
 import com.radwija.jumpstartbackend.repository.CartRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.CartService;
@@ -24,7 +24,7 @@ public class CartServiceImpl implements CartService {
     private CartRepository cartRepository;
 
     @Autowired
-    private CartItemRepository cartItemRepository;
+    private ItemRepository itemRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -32,10 +32,10 @@ public class CartServiceImpl implements CartService {
     public static BigDecimal maxAmount = new BigDecimal("9999999.99");
 
     @Override
-    public BigDecimal checkTotal(List<CartItem> items) {
+    public BigDecimal checkTotal(List<Item> items) {
         BigDecimal total = BigDecimal.valueOf(0);
-        for (CartItem cartItem : items) {
-            total = total.add(cartItem.getItemPriceTotal());
+        for (Item item : items) {
+            total = total.add(item.getItemPriceTotal());
         }
 
         if (total.compareTo(maxAmount) > 0) {
@@ -47,7 +47,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public BaseResponse<?> addProductToCart(String currentUserEmail, Long productId) {
-        CartItem cartItem = new CartItem();
+        Item item = new Item();
         Cart cart = new Cart();
         return null;
     }
@@ -59,21 +59,21 @@ public class CartServiceImpl implements CartService {
                     .orElseThrow(() -> new UsernameNotFoundException("current user not found"));
             Cart cart = cartRepository.findByUser(user)
                     .orElseThrow(() -> new CartNotFoundException("cart not found"));
-            List<CartItem> cartItems = cart.getCartItems();
+            List<Item> items = cart.getItems();
             int itemNumbers = 0;
 
-            for (CartItem cartItem : cartItems) {
-                itemNumbers += cartItem.getQuantity();
+            for (Item item : items) {
+                itemNumbers += item.getQuantity();
             }
 
             // TODO: show items that don't have null in product_id and have TRANSACTION_SUCCESS
             CartDto result = new CartDto();
             result.setCartId(cart.getCartId());
             result.setUserId(user.getUserId());
-            result.setCartSize(cartItems.size());
+            result.setCartSize(items.size());
             result.setItemNumbers(itemNumbers);
-            result.setTotal(checkTotal(cartItems));
-            result.setCartItems(cartItems);
+            result.setTotal(checkTotal(items));
+            result.setItems(items);
 
             return BaseResponse.ok("success", result);
         } catch (Exception e) {

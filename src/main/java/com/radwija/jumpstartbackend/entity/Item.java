@@ -1,11 +1,10 @@
 package com.radwija.jumpstartbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.radwija.jumpstartbackend.constraint.EItemStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -13,7 +12,7 @@ import java.util.Date;
 
 @Entity
 @Setter @Getter @NoArgsConstructor
-public class CartItem {
+public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemId;
@@ -24,6 +23,9 @@ public class CartItem {
 
     private Date createdAt;
     private Date updatedAt;
+
+    @Enumerated(EnumType.STRING)
+    private EItemStatus status;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

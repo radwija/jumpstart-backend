@@ -1,6 +1,6 @@
 package com.radwija.jumpstartbackend.payload.response;
 
-import com.radwija.jumpstartbackend.entity.CartItem;
+import com.radwija.jumpstartbackend.entity.Item;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,5 +17,5 @@ public class CartDto {
     private int cartSize;
     private int itemNumbers;
     private BigDecimal total;
-    private List<CartItem> cartItems;
+    private List<Item> items;
 }

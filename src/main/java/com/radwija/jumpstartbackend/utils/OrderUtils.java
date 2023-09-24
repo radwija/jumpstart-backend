@@ -1,12 +1,12 @@
 package com.radwija.jumpstartbackend.utils;
 
-import com.radwija.jumpstartbackend.entity.CartItem;
+import com.radwija.jumpstartbackend.entity.Item;
 import com.radwija.jumpstartbackend.entity.Product;
 import com.radwija.jumpstartbackend.exception.OutOfCartMaxTotalException;
 import com.radwija.jumpstartbackend.exception.OutOfProductStockException;
 import com.radwija.jumpstartbackend.exception.ProductNotFoundException;
-import com.radwija.jumpstartbackend.payload.request.CartItemRequest;
-import com.radwija.jumpstartbackend.repository.CartItemRepository;
+import com.radwija.jumpstartbackend.payload.request.ItemRequest;
+import com.radwija.jumpstartbackend.repository.ItemRepository;
 import com.radwija.jumpstartbackend.repository.CartRepository;
 import com.radwija.jumpstartbackend.repository.ProductRepository;
 import com.radwija.jumpstartbackend.service.impl.CartServiceImpl;
@@ -19,7 +19,7 @@ public class OrderUtils extends ServiceUtils {
     private ProductRepository productRepository;
 
     @Autowired
-    private CartItemRepository cartItemRepository;
+    private ItemRepository itemRepository;
 
     @Autowired
     private CartRepository cartRepository;
@@ -31,18 +31,18 @@ public class OrderUtils extends ServiceUtils {
         }
     }
 
-    protected void checkProductStockWithCartItem(CartItemRequest cartItemRequest, String message) {
-        Product product = productRepository.findByProductId(cartItemRequest.getProductId())
+    protected void checkProductStockWithCartItem(ItemRequest itemRequest, String message) {
+        Product product = productRepository.findByProductId(itemRequest.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("product not found"));
-        CartItem cartItemOfProduct = cartItemRepository.findByProduct(product);
+        Item itemOfProduct = itemRepository.findByProduct(product);
 
-        int quantityRequest = cartItemRequest.getQuantity();
+        int quantityRequest = itemRequest.getQuantity();
         Long productStock = product.getStock();
 
-        if (cartItemOfProduct != null) {
-            int quantityOfCartItem = cartItemOfProduct.getQuantity();
+        if (itemOfProduct != null) {
+            int quantityOfCartItem = itemOfProduct.getQuantity();
             int checkedQuantity = 0;
-            if (cartItemRequest.getRequestFrom() != null && cartItemRequest.getRequestFrom().equals("FROM_CART")) {
+            if (itemRequest.getRequestFrom() != null && itemRequest.getRequestFrom().equals("FROM_CART")) {
                 checkedQuantity = quantityRequest;
             } else {
                 checkedQuantity = quantityOfCartItem + quantityRequest;

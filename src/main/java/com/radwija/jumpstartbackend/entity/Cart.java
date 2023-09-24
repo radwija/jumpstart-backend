@@ -21,7 +21,7 @@ public class Cart {
 
     @JsonBackReference
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
-    private List<CartItem> cartItems;
+    private List<Item> items;
 
     @JsonBackReference
     @OneToOne(cascade = CascadeType.ALL)
@@ -30,8 +30,8 @@ public class Cart {
 
     public BigDecimal getTotal() {
         BigDecimal total = BigDecimal.valueOf(0);
-        for (CartItem cartItem : cartItems) {
-            total = total.add(cartItem.getItemPriceTotal());
+        for (Item item : items) {
+            total = total.add(item.getItemPriceTotal());
         }
         return total;
     }

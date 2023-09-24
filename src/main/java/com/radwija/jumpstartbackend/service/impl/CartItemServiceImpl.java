@@ -1,13 +1,14 @@
 package com.radwija.jumpstartbackend.service.impl;
 
+import com.radwija.jumpstartbackend.constraint.EItemStatus;
 import com.radwija.jumpstartbackend.entity.Cart;
-import com.radwija.jumpstartbackend.entity.CartItem;
+import com.radwija.jumpstartbackend.entity.Item;
 import com.radwija.jumpstartbackend.entity.Product;
 import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.exception.*;
-import com.radwija.jumpstartbackend.payload.request.CartItemRequest;
+import com.radwija.jumpstartbackend.payload.request.ItemRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
-import com.radwija.jumpstartbackend.repository.CartItemRepository;
+import com.radwija.jumpstartbackend.repository.ItemRepository;
 import com.radwija.jumpstartbackend.repository.ProductRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.CartItemService;
@@ -26,53 +27,53 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
     private UserRepository userRepository;
 
     @Autowired
-    private CartItemRepository cartItemRepository;
+    private ItemRepository itemRepository;
 
     @Autowired
     private ProductRepository productRepository;
 
     @Override
-    public BigDecimal checkItemTotal(CartItemRequest cartItemRequest) {
-        int quantityRequest = cartItemRequest.getQuantity();
+    public BigDecimal checkItemTotal(ItemRequest itemRequest) {
+        int quantityRequest = itemRequest.getQuantity();
         if (quantityRequest <= 0) {
             throw new InvalidInputException("Quantity input is invalid.");
         }
-        Product product = productRepository.findByProductId(cartItemRequest.getProductId())
+        Product product = productRepository.findByProductId(itemRequest.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("product not found"));
         BigDecimal itemPriceTotal = product.getPrice().multiply(BigDecimal.valueOf(quantityRequest));
 
-        CartItem cartItemOfProduct = cartItemRepository.findByProduct(product);
+        Item itemOfProduct = itemRepository.findByProduct(product);
         Cart cart = getCurrentUser().getCart();
-        List<CartItem> cartItems = cart.getCartItems();
+        List<Item> items = cart.getItems();
         BigDecimal cartTotal = BigDecimal.valueOf(0);
-        for (CartItem cartItem : cartItems) {
-            cartTotal = cartTotal.add(cartItem.getItemPriceTotal());
+        for (Item item : items) {
+            cartTotal = cartTotal.add(item.getItemPriceTotal());
         }
 
         checkCartTotal(itemPriceTotal, cartTotal);
 
         String errorMessage;
-        if (cartItemOfProduct != null) {
-            int quantityOfCartItem = cartItemOfProduct.getQuantity();
+        if (itemOfProduct != null) {
+            int quantityOfCartItem = itemOfProduct.getQuantity();
             errorMessage = "Only " + product.getStock() + " left and you already have " + quantityOfCartItem + " of this item in your cart.";
-            checkProductStockWithCartItem(cartItemRequest, errorMessage);
-            itemPriceTotal = cartItemOfProduct.getItemPriceTotal().add(BigDecimal.valueOf(quantityRequest).multiply(BigDecimal.valueOf(quantityOfCartItem)));
+            checkProductStockWithCartItem(itemRequest, errorMessage);
+            itemPriceTotal = itemOfProduct.getItemPriceTotal().add(BigDecimal.valueOf(quantityRequest).multiply(BigDecimal.valueOf(quantityOfCartItem)));
         } else {
             errorMessage = "Maximum quantityRequest to purchase this item is " + product.getStock();
-            checkProductStockWithCartItem(cartItemRequest, errorMessage);
+            checkProductStockWithCartItem(itemRequest, errorMessage);
         }
 
         return itemPriceTotal;
     }
 
     @Override
-    public BaseResponse<?> saveCartItem(String email, CartItemRequest cartItemRequest) {
-        BaseResponse<CartItem> response = new BaseResponse<>();
+    public BaseResponse<?> saveCartItem(String email, ItemRequest itemRequest) {
+        BaseResponse<Item> response = new BaseResponse<>();
         try {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("current user not found"));
             Cart cart = user.getCart();
-            Product product = productRepository.findByProductId(cartItemRequest.getProductId())
+            Product product = productRepository.findByProductId(itemRequest.getProductId())
                     .orElseThrow(() -> new ProductNotFoundException("product not found"));
             if (cart == null) {
                 throw new CartNotFoundException("cart not found");
@@ -81,37 +82,39 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
             System.out.println(product.getProductId());
             System.out.println("Owned by: " + cart.getUser().getEmail());
 
-            CartItem cartItem = cartItemRepository.findByProduct(product);
-            if (cartItem != null) {
+            Item item = itemRepository.findByProduct(product);
+            if (item != null) {
                 String requestFrom = "FROM_CART";
-                cartItem.setProduct(product);
-                cartItem.setItemPriceTotal(checkItemTotal(cartItemRequest));
-                if (cartItemRequest.getRequestFrom() != null && cartItemRequest.getRequestFrom().equals(requestFrom)) {
-                    cartItem.setQuantity(cartItemRequest.getQuantity());
+                item.setProduct(product);
+                item.setItemPriceTotal(checkItemTotal(itemRequest));
+                if (itemRequest.getRequestFrom() != null && itemRequest.getRequestFrom().equals(requestFrom)) {
+                    item.setQuantity(itemRequest.getQuantity());
                 } else {
-                    cartItem.setQuantity(cartItem.getQuantity() + cartItemRequest.getQuantity());
+                    item.setQuantity(item.getQuantity() + itemRequest.getQuantity());
                 }
-                cartItem.setCart(cart);
-                cartItem.setUpdatedAt(new Date());
+                item.setCart(cart);
+                item.setUpdatedAt(new Date());
+                item.setStatus(EItemStatus.IN_CART);
 
-                cartItemRepository.save(cartItem);
+                itemRepository.save(item);
 
                 response.setCode(200);
                 response.setMessage("Product added to cart successfully!");
-                response.setResult(cartItem);
+                response.setResult(item);
             } else {
-                CartItem newCartItem = new CartItem();
-                newCartItem.setProduct(product);
-                newCartItem.setQuantity(cartItemRequest.getQuantity());
-                newCartItem.setItemPriceTotal(checkItemTotal(cartItemRequest));
-                newCartItem.setCart(cart);
-                newCartItem.setCreatedAt(new Date());
+                Item newItem = new Item();
+                newItem.setProduct(product);
+                newItem.setQuantity(itemRequest.getQuantity());
+                newItem.setItemPriceTotal(checkItemTotal(itemRequest));
+                newItem.setCart(cart);
+                newItem.setCreatedAt(new Date());
+                newItem.setStatus(EItemStatus.IN_CART);
 
-                cartItemRepository.save(newCartItem);
+                itemRepository.save(newItem);
 
                 response.setCode(200);
                 response.setMessage("Product added to cart successfully!");
-                response.setResult(newCartItem);
+                response.setResult(newItem);
             }
 
             return response;
@@ -123,13 +126,13 @@ public class CartItemServiceImpl extends OrderUtils implements CartItemService {
     @Override
     public BaseResponse<?> deleteCartItemById(String email, Long cartItemId) {
         try {
-            CartItem deletedCartItem = cartItemRepository.findById(cartItemId)
+            Item deletedItem = itemRepository.findById(cartItemId)
                     .orElseThrow(() -> new CartItemNotFoundException("Cart item not found"));
-            String ownerEmail = deletedCartItem.getCart().getUser().getEmail();
+            String ownerEmail = deletedItem.getCart().getUser().getEmail();
             if (email != ownerEmail) {
                 throw new RefusedActionException("Access denied");
             }
-            cartItemRepository.deleteById(cartItemId);
+            itemRepository.deleteById(cartItemId);
             return BaseResponse.ok("Cart item ID " + cartItemId + " deleted successfully.");
         } catch (Exception e) {
             return BaseResponse.badRequest(e.getMessage());

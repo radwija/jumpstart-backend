@@ -1,6 +1,6 @@
 package com.radwija.jumpstartbackend.controller;
 
-import com.radwija.jumpstartbackend.payload.request.CartItemRequest;
+import com.radwija.jumpstartbackend.payload.request.ItemRequest;
 import com.radwija.jumpstartbackend.payload.request.UpdateUserRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.service.CartItemService;
@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @PostMapping("/add-product-to-cart")
-    public ResponseEntity<?> addToCart(@RequestBody CartItemRequest request) {
+    public ResponseEntity<?> addToCart(@RequestBody ItemRequest request) {
         String currentUserEmail = userService.getCurrentUser().getEmail();
         final BaseResponse<?> response = cartItemService.saveCartItem(currentUserEmail, request);
         if (response.getCode() == 200) {
@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping("/set-item-quantity")
-    public ResponseEntity<?> setItemQuantity(@RequestBody CartItemRequest request) {
+    public ResponseEntity<?> setItemQuantity(@RequestBody ItemRequest request) {
         String currentUserEmail = userService.getCurrentUser().getEmail();
         final BaseResponse<?> response = cartItemService.saveCartItem(currentUserEmail, request);
         if (response.getCode() == 200) {
