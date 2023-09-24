@@ -8,6 +8,7 @@ import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.exception.*;
 import com.radwija.jumpstartbackend.payload.request.ItemRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
+import com.radwija.jumpstartbackend.repository.CartRepository;
 import com.radwija.jumpstartbackend.repository.ItemRepository;
 import com.radwija.jumpstartbackend.repository.ProductRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
@@ -30,6 +31,9 @@ public class ItemServiceImpl extends OrderUtils implements ItemService {
     private ItemRepository itemRepository;
 
     @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
     private ProductRepository productRepository;
 
     @Override
@@ -44,7 +48,7 @@ public class ItemServiceImpl extends OrderUtils implements ItemService {
 
         Item itemOfProduct = itemRepository.findByProduct(product);
         Cart cart = getCurrentUser().getCart();
-        List<Item> items = cart.getItems();
+        List<Item> items = itemRepository.findByCartAndProductIsNotNullAndStatus(cart, EItemStatus.IN_CART);
         BigDecimal cartTotal = BigDecimal.valueOf(0);
         for (Item item : items) {
             cartTotal = cartTotal.add(item.getItemPriceTotal());
