@@ -13,4 +13,5 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
     Item findByProduct(Product product);
     List<Item> findByCartAndProductIsNotNullAndStatus(Cart cart, EItemStatus status);
+    List<Item> findAllByProductAndStatus(Product product, EItemStatus status);
 }

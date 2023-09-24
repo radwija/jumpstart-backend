@@ -1,7 +1,9 @@
 package com.radwija.jumpstartbackend.service.impl;
 
+import com.radwija.jumpstartbackend.constraint.EItemStatus;
 import com.radwija.jumpstartbackend.constraint.ERole;
 import com.radwija.jumpstartbackend.entity.Category;
+import com.radwija.jumpstartbackend.entity.Item;
 import com.radwija.jumpstartbackend.entity.Product;
 import com.radwija.jumpstartbackend.exception.CategoryNotFoundException;
 import com.radwija.jumpstartbackend.exception.ProductNotFoundException;
@@ -9,6 +11,7 @@ import com.radwija.jumpstartbackend.exception.RefusedActionException;
 import com.radwija.jumpstartbackend.payload.request.ProductRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.repository.CategoryRepository;
+import com.radwija.jumpstartbackend.repository.ItemRepository;
 import com.radwija.jumpstartbackend.repository.ProductRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.ProductService;
@@ -33,6 +36,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ItemRepository itemRepository;
 
     @Override
     public void checkUserIsAdmin(String currentUserEmail) {
@@ -174,7 +180,15 @@ public class ProductServiceImpl implements ProductService {
             if (!productRepository.existsByProductId(productId)) {
                 throw new ProductNotFoundException("Product not found.");
             }
-            // TODO: set null to items that have TRANSACTION_SUCCESS status
+            Product product = productRepository.findByProductId(productId)
+                    .orElseThrow(() -> new ProductNotFoundException("Product not found."));
+
+            List<Item> purchasedItems = itemRepository.findAllByProductAndStatus(product, EItemStatus.PURCHASED);
+            for (Item item : purchasedItems) {
+                item.setProduct(null);
+                itemRepository.save(item);
+            }
+
             productRepository.deleteById(productId);
             return BaseResponse.ok("Product ID: " + productId + " deleted successfully.");
         } catch (RuntimeException e) {
