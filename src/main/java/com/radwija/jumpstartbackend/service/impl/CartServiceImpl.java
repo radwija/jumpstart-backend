@@ -1,5 +1,6 @@
 package com.radwija.jumpstartbackend.service.impl;
 
+import com.radwija.jumpstartbackend.constraint.EItemStatus;
 import com.radwija.jumpstartbackend.entity.Cart;
 import com.radwija.jumpstartbackend.entity.Item;
 import com.radwija.jumpstartbackend.entity.User;
@@ -59,7 +60,7 @@ public class CartServiceImpl implements CartService {
                     .orElseThrow(() -> new UsernameNotFoundException("current user not found"));
             Cart cart = cartRepository.findByUser(user)
                     .orElseThrow(() -> new CartNotFoundException("cart not found"));
-            List<Item> items = cart.getItems();
+            List<Item> items = itemRepository.findByCartAndProductIsNotNullAndStatus(cart, EItemStatus.IN_CART);
             int itemNumbers = 0;
 
             for (Item item : items) {
