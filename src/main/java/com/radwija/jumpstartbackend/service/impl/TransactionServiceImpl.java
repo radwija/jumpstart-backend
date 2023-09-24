@@ -1,12 +1,10 @@
 package com.radwija.jumpstartbackend.service.impl;
 
 import com.paypal.core.PayPalHttpClient;
-import com.paypal.http.HttpRequest;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
-import com.paypal.payments.RefundRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
-import com.radwija.jumpstartbackend.service.PayPalService;
+import com.radwija.jumpstartbackend.service.TransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +16,7 @@ import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
-public class PayPalServiceImpl implements PayPalService {
+public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private PayPalHttpClient payPalHttpClient;
 

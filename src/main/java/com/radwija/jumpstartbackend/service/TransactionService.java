@@ -4,7 +4,7 @@ import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 
 import java.math.BigDecimal;
 
-public interface PayPalService {
+public interface TransactionService {
     BaseResponse<?> createPayment(BigDecimal fee);
     BaseResponse<?> completePayment(String token);
 }
