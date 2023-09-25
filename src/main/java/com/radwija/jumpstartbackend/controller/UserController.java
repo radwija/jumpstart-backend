@@ -27,6 +27,9 @@ public class UserController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private ProductSnapshotService productSnapshotService;
+
     @GetMapping("/me")
     public ResponseEntity<?> userProfile() {
         return ResponseEntity.ok(userService.getCurrentUser().getUserProfile());
@@ -91,6 +94,16 @@ public class UserController {
             filter = "";
         }
         BaseResponse<?> response = orderService.getMyOrders(currentUser, filter);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @GetMapping("/my-orders/snapshot/slug/{slug}")
+    public ResponseEntity<?> showSnapshotDetailsBySlug(@PathVariable("slug") String slug) {
+        User currentUser = userService.getCurrentUser();
+        BaseResponse<?> response = productSnapshotService.showSnapshotDetailsBySlug(currentUser, slug);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }

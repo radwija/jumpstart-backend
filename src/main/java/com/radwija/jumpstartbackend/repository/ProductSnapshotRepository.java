@@ -12,4 +12,5 @@ import java.util.List;
 public interface ProductSnapshotRepository extends JpaRepository<ProductSnapshot, Long> {
     List<ProductSnapshot> findAllByOrder(Order order);
     List<ProductSnapshot> findAllByProduct(Product product);
+    ProductSnapshot findBySlug(String slug);
 }
