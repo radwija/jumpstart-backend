@@ -1,12 +1,10 @@
 package com.radwija.jumpstartbackend.controller;
 
+import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.payload.request.ItemRequest;
 import com.radwija.jumpstartbackend.payload.request.UpdateUserRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
-import com.radwija.jumpstartbackend.service.ItemService;
-import com.radwija.jumpstartbackend.service.CartService;
-import com.radwija.jumpstartbackend.service.UserProfileService;
-import com.radwija.jumpstartbackend.service.UserService;
+import com.radwija.jumpstartbackend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +23,9 @@ public class UserController {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping("/me")
     public ResponseEntity<?> userProfile() {
@@ -77,6 +78,19 @@ public class UserController {
         Long cartItemId = Long.parseLong(cartItemIdStr);
         String currentUserEmail = userService.getCurrentUser().getEmail();
         BaseResponse<?> response = itemService.deleteCartItemById(currentUserEmail, cartItemId);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @GetMapping("/my-orders")
+    public ResponseEntity<?> getMyOrders(@RequestParam(value = "filter", required = false) String filter) {
+        User currentUser = userService.getCurrentUser();
+        if (filter == null) {
+            filter = "";
+        }
+        BaseResponse<?> response = orderService.getMyOrders(currentUser, filter);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }
