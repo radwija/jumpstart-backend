@@ -5,15 +5,13 @@ import com.radwija.jumpstartbackend.constraint.ERole;
 import com.radwija.jumpstartbackend.entity.Category;
 import com.radwija.jumpstartbackend.entity.Item;
 import com.radwija.jumpstartbackend.entity.Product;
+import com.radwija.jumpstartbackend.entity.ProductSnapshot;
 import com.radwija.jumpstartbackend.exception.CategoryNotFoundException;
 import com.radwija.jumpstartbackend.exception.ProductNotFoundException;
 import com.radwija.jumpstartbackend.exception.RefusedActionException;
 import com.radwija.jumpstartbackend.payload.request.ProductRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
-import com.radwija.jumpstartbackend.repository.CategoryRepository;
-import com.radwija.jumpstartbackend.repository.ItemRepository;
-import com.radwija.jumpstartbackend.repository.ProductRepository;
-import com.radwija.jumpstartbackend.repository.UserRepository;
+import com.radwija.jumpstartbackend.repository.*;
 import com.radwija.jumpstartbackend.service.ProductService;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.BeanUtils;
@@ -39,6 +37,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private ProductSnapshotRepository productSnapshotRepository;
 
     @Override
     public void checkUserIsAdmin(String currentUserEmail) {
@@ -184,9 +185,15 @@ public class ProductServiceImpl implements ProductService {
                     .orElseThrow(() -> new ProductNotFoundException("Product not found."));
 
             List<Item> purchasedItems = itemRepository.findAllByProductAndStatus(product, EItemStatus.PURCHASED);
+            List<ProductSnapshot> snapshots = productSnapshotRepository.findAllByProduct(product);
             for (Item item : purchasedItems) {
                 item.setProduct(null);
                 itemRepository.save(item);
+            }
+
+            for (ProductSnapshot snapshot : snapshots) {
+                snapshot.setProduct(null);
+                productSnapshotRepository.save(snapshot);
             }
 
             productRepository.deleteById(productId);

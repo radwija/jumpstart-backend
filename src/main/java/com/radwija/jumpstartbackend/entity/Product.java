@@ -35,7 +35,7 @@ public class Product {
     @JsonBackReference
     private List<Item> item;
 
-    @OneToMany(cascade = {CascadeType.DETACH}, mappedBy = "product")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
     @JsonBackReference
     private List<ProductSnapshot> productSnapshots;
 }

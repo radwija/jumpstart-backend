@@ -12,14 +12,14 @@ import javax.persistence.*;
 public class ProductSnapshot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long capturedProductId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "order_id")
     @JsonBackReference
     private Order order;
 
-    @ManyToOne(cascade = CascadeType.DETACH)
+    @ManyToOne
     @JoinColumn(name = "product_id")
 //    @JsonBackReference
     private Product product;
