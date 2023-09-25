@@ -14,4 +14,6 @@ public interface OrderService {
     void convertCartItemsToSnapshots(Order order, List<Item> items);
     BaseResponse<?> getAllOrders(User user, String status);
     BaseResponse<?> getMyOrders(User user, String status);
+    BaseResponse<?> completeOrder(User user, Long orderId);
+    BaseResponse<?> cancelOrder(User user, Long orderId);
 }

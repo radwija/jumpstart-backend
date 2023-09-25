@@ -93,4 +93,26 @@ public class AdminController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    @GetMapping("/complete-order/{orderIdStr}")
+    public ResponseEntity<?> completeOrder(@PathVariable(value = "orderIdStr") String orderIdStr) {
+        User currentUser = userService.getCurrentUser();
+        Long orderId = Long.parseLong(orderIdStr);
+        BaseResponse<?> response = orderService.completeOrder(currentUser, orderId);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @GetMapping("/cancel-order/{orderIdStr}")
+    public ResponseEntity<?> cancelOrder(@PathVariable(value = "orderIdStr") String orderIdStr) {
+        User currentUser = userService.getCurrentUser();
+        Long orderId = Long.parseLong(orderIdStr);
+        BaseResponse<?> response = orderService.cancelOrder(currentUser, orderId);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }

@@ -4,14 +4,13 @@ import com.radwija.jumpstartbackend.constraint.EItemStatus;
 import com.radwija.jumpstartbackend.constraint.EOrderStatus;
 import com.radwija.jumpstartbackend.entity.*;
 import com.radwija.jumpstartbackend.exception.CartNotFoundException;
+import com.radwija.jumpstartbackend.exception.OrderNotFoundException;
+import com.radwija.jumpstartbackend.exception.RefusedActionException;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.payload.response.AllOrdersDto;
 import com.radwija.jumpstartbackend.payload.response.CustomOrderDto;
 import com.radwija.jumpstartbackend.payload.response.OrderDto;
-import com.radwija.jumpstartbackend.repository.CartRepository;
-import com.radwija.jumpstartbackend.repository.ItemRepository;
-import com.radwija.jumpstartbackend.repository.OrderRepository;
-import com.radwija.jumpstartbackend.repository.ProductSnapshotRepository;
+import com.radwija.jumpstartbackend.repository.*;
 import com.radwija.jumpstartbackend.service.OrderService;
 import com.radwija.jumpstartbackend.utils.OrderUtils;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +36,9 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
 
     @Autowired
     private ProductSnapshotRepository productSnapshotRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public BaseResponse<?> saveNewOrder(User user) {
@@ -171,6 +173,51 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             result.setOrders(myOrders);
 
             return BaseResponse.ok(result);
+        } catch (Exception e) {
+            return BaseResponse.badRequest(e.getMessage());
+        }
+    }
+
+    @Override
+    public BaseResponse<?> completeOrder(User user, Long orderId) {
+        try {
+            if (!isAdmin(user.getEmail())) {
+                return BaseResponse.forbidden();
+            }
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId+ " not found."));
+            List<ProductSnapshot> productSnapshots = order.getProductSnapshots();
+
+            order.setStatus(EOrderStatus.COMPLETED);
+            for (ProductSnapshot productSnapshot : productSnapshots) {
+                Product product = productSnapshot.getProduct();
+                Long stock = product.getStock();
+                product.setStock(stock - productSnapshot.getQuantity());
+                productRepository.save(product);
+            }
+            order.setUpdatedAt(new Date());
+            orderRepository.save(order);
+
+            return BaseResponse.ok("Order ID: " + orderId + " set to COMPLETED successfully.", order);
+        } catch (Exception e) {
+            return BaseResponse.badRequest(e.getMessage());
+        }
+    }
+
+    @Override
+    public BaseResponse<?> cancelOrder(User user, Long orderId) {
+        try {
+            if (!isAdmin(user.getEmail())) {
+                return BaseResponse.forbidden();
+            }
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId+ " not found."));
+
+            order.setStatus(EOrderStatus.CANCELLED);
+            order.setUpdatedAt(new Date());
+            orderRepository.save(order);
+
+            return BaseResponse.ok("Order ID: " + orderId + " set to CANCELLED successfully.", order);
         } catch (Exception e) {
             return BaseResponse.badRequest(e.getMessage());
         }
