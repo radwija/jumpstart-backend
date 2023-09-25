@@ -8,11 +8,12 @@ import com.radwija.jumpstartbackend.exception.RefusedActionException;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.repository.ProductSnapshotRepository;
 import com.radwija.jumpstartbackend.service.ProductSnapshotService;
+import com.radwija.jumpstartbackend.utils.OrderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProductSnapshotServiceImpl implements ProductSnapshotService {
+public class ProductSnapshotServiceImpl extends OrderUtils implements ProductSnapshotService {
     @Autowired
     private ProductSnapshotRepository productSnapshotRepository;
 
@@ -23,7 +24,7 @@ public class ProductSnapshotServiceImpl implements ProductSnapshotService {
             if (detailedSnapshot == null) {
                 throw new ProductNotFoundException("Snapshot not found.");
             }
-            if (user != detailedSnapshot.getOrder().getUser()) {
+            if (user != detailedSnapshot.getOrder().getUser() && !isAdmin(user.getEmail())) {
                 throw new RefusedActionException("Access denied.");
             }
             return BaseResponse.ok(detailedSnapshot);
