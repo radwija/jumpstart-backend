@@ -186,6 +186,10 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             }
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId+ " not found."));
+            if (order.getStatus() == EOrderStatus.COMPLETED) {
+                return BaseResponse.ok("Order ID: " + orderId+ " already set to be COMPLETED.");
+            }
+
             List<ProductSnapshot> productSnapshots = order.getProductSnapshots();
 
             order.setStatus(EOrderStatus.COMPLETED);
@@ -198,7 +202,7 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             order.setUpdatedAt(new Date());
             orderRepository.save(order);
 
-            return BaseResponse.ok("Order ID: " + orderId + " set to COMPLETED successfully.", order);
+            return BaseResponse.ok("Order ID: " + orderId + " set to be COMPLETED successfully.", order);
         } catch (Exception e) {
             return BaseResponse.badRequest(e.getMessage());
         }
@@ -212,12 +216,15 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             }
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId+ " not found."));
+            if (order.getStatus() == EOrderStatus.CANCELLED) {
+                return BaseResponse.ok("Order ID: " + orderId+ " already set to be COMPLETED.");
+            }
 
             order.setStatus(EOrderStatus.CANCELLED);
             order.setUpdatedAt(new Date());
             orderRepository.save(order);
 
-            return BaseResponse.ok("Order ID: " + orderId + " set to CANCELLED successfully.", order);
+            return BaseResponse.ok("Order ID: " + orderId + " set to be CANCELLED successfully.", order);
         } catch (Exception e) {
             return BaseResponse.badRequest(e.getMessage());
         }
