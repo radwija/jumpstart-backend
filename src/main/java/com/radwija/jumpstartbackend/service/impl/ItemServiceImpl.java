@@ -46,7 +46,7 @@ public class ItemServiceImpl extends OrderUtils implements ItemService {
                 .orElseThrow(() -> new ProductNotFoundException("product not found"));
         BigDecimal itemPriceTotal = product.getPrice().multiply(BigDecimal.valueOf(quantityRequest));
 
-        Item itemOfProduct = itemRepository.findByProduct(product);
+        Item itemOfProduct = itemRepository.findByProductAndStatus(product, EItemStatus.IN_CART);
         Cart cart = getCurrentUser().getCart();
         List<Item> items = itemRepository.findByCartAndProductIsNotNullAndStatus(cart, EItemStatus.IN_CART);
         BigDecimal cartTotal = BigDecimal.valueOf(0);
@@ -86,7 +86,7 @@ public class ItemServiceImpl extends OrderUtils implements ItemService {
             System.out.println(product.getProductId());
             System.out.println("Owned by: " + cart.getUser().getEmail());
 
-            Item item = itemRepository.findByProduct(product);
+            Item item = itemRepository.findByProductAndStatus(product, EItemStatus.IN_CART);
             if (item != null) {
                 String requestFrom = "FROM_CART";
                 item.setProduct(product);
@@ -94,6 +94,14 @@ public class ItemServiceImpl extends OrderUtils implements ItemService {
                 if (itemRequest.getRequestFrom() != null && itemRequest.getRequestFrom().equals(requestFrom)) {
                     item.setQuantity(itemRequest.getQuantity());
                 } else {
+//                    if (item.getStatus() == EItemStatus.PURCHASED) {
+//                        item = new Item();
+//                        item.setStatus(EItemStatus.IN_CART);
+//                        item.setProduct(product);
+//                        item.setQuantity(0);
+//                        item.setCreatedAt(new Date());
+//                        itemRepository.save(item);
+//                    }
                     item.setQuantity(item.getQuantity() + itemRequest.getQuantity());
                 }
                 item.setCart(cart);

@@ -43,7 +43,7 @@ public class OrderUtils extends ServiceUtils {
     protected void checkProductStockWithCartItem(ItemRequest itemRequest, String message) {
         Product product = productRepository.findByProductId(itemRequest.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("product not found"));
-        Item itemOfProduct = itemRepository.findByProduct(product);
+        Item itemOfProduct = itemRepository.findByProductAndStatus(product, EItemStatus.IN_CART);
 
         int quantityRequest = itemRequest.getQuantity();
         Long productStock = product.getStock();
