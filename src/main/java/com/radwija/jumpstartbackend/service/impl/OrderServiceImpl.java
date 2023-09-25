@@ -5,6 +5,8 @@ import com.radwija.jumpstartbackend.constraint.EOrderStatus;
 import com.radwija.jumpstartbackend.entity.*;
 import com.radwija.jumpstartbackend.exception.CartNotFoundException;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
+import com.radwija.jumpstartbackend.payload.response.AllOrdersDto;
+import com.radwija.jumpstartbackend.payload.response.CustomOrderDto;
 import com.radwija.jumpstartbackend.payload.response.OrderDto;
 import com.radwija.jumpstartbackend.repository.CartRepository;
 import com.radwija.jumpstartbackend.repository.ItemRepository;
@@ -12,11 +14,13 @@ import com.radwija.jumpstartbackend.repository.OrderRepository;
 import com.radwija.jumpstartbackend.repository.ProductSnapshotRepository;
 import com.radwija.jumpstartbackend.service.OrderService;
 import com.radwija.jumpstartbackend.utils.OrderUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -103,7 +107,8 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
 
             List<Order> orders;
 
-            OrderDto result = new OrderDto();
+            AllOrdersDto result = new AllOrdersDto();
+            List<CustomOrderDto> customOrderDtos = new ArrayList<>();
             switch (status) {
                 case "pending":
                     orders = orderRepository.findAllByStatus(EOrderStatus.PENDING);
@@ -118,13 +123,24 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
                     orders = orderRepository.findAll();
                     break;
             }
+            for (Order order : orders) {
+                User customer = order.getUser();
+                String firstName = customer.getUserProfile().getFirstName();
+                String lastName = customer.getUserProfile().getLastName();
+
+                CustomOrderDto customOrderDto = new CustomOrderDto();
+                BeanUtils.copyProperties(order, customOrderDto);
+                customOrderDto.setUserId(customer.getUserId());
+                customOrderDto.setEmail(customer.getEmail());
+                customOrderDto.setFullName(firstName + " " + lastName);
+                customOrderDtos.add(customOrderDto);
+            }
 
             result.setFilter(status);
             result.setOrderNumbers(orders.size());
-            result.setOrders(orders);
+            result.setOrders(customOrderDtos);
 
-
-            return BaseResponse.ok(orders);
+            return BaseResponse.ok(result);
         } catch (Exception e) {
             return BaseResponse.badRequest(e.getMessage());
         }

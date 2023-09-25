@@ -1,12 +1,14 @@
 package com.radwija.jumpstartbackend.controller;
 
 import com.radwija.jumpstartbackend.entity.Product;
+import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.exception.ProductNotFoundException;
 import com.radwija.jumpstartbackend.payload.request.CreateCategoryRequest;
 import com.radwija.jumpstartbackend.payload.request.ProductRequest;
 import com.radwija.jumpstartbackend.payload.request.UserRegisterRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.service.CategoryService;
+import com.radwija.jumpstartbackend.service.OrderService;
 import com.radwija.jumpstartbackend.service.ProductService;
 import com.radwija.jumpstartbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class AdminController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping("/create-category")
     public ResponseEntity<?> createCategory(@RequestBody CreateCategoryRequest request) {
@@ -70,6 +75,19 @@ public class AdminController {
         Long productId = Long.parseLong(productIdStr);
         String currentUserEmail = userService.getCurrentUser().getEmail();
         BaseResponse<?> response = productService.deleteProductByProductId(currentUserEmail, productId);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity<?> getAllOrders(@RequestParam(value = "filter", required = false) String filter) {
+        User currentUser = userService.getCurrentUser();
+        if (filter == null) {
+            filter = "";
+        }
+        BaseResponse<?> response = orderService.getAllOrders(currentUser, filter);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }
