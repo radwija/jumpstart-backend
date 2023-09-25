@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -21,8 +22,9 @@ public class Order {
     private Long orderId;
     private Date createdAt;
     private Date updatedAt;
+    private BigDecimal total;
 
-    @JsonBackReference
+//    @JsonBackReference
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<ProductSnapshot> productSnapshots;
 

@@ -1,24 +1,22 @@
 package com.radwija.jumpstartbackend.utils;
 
 import com.radwija.jumpstartbackend.constraint.EItemStatus;
-import com.radwija.jumpstartbackend.entity.Cart;
-import com.radwija.jumpstartbackend.entity.Item;
-import com.radwija.jumpstartbackend.entity.Product;
-import com.radwija.jumpstartbackend.entity.User;
+import com.radwija.jumpstartbackend.entity.*;
 import com.radwija.jumpstartbackend.exception.CartNotFoundException;
 import com.radwija.jumpstartbackend.exception.OutOfCartMaxTotalException;
 import com.radwija.jumpstartbackend.exception.OutOfProductStockException;
 import com.radwija.jumpstartbackend.exception.ProductNotFoundException;
 import com.radwija.jumpstartbackend.payload.request.ItemRequest;
+import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.payload.response.CartDto;
-import com.radwija.jumpstartbackend.repository.ItemRepository;
-import com.radwija.jumpstartbackend.repository.CartRepository;
-import com.radwija.jumpstartbackend.repository.ProductRepository;
+import com.radwija.jumpstartbackend.repository.*;
 import com.radwija.jumpstartbackend.service.impl.CartServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static com.radwija.jumpstartbackend.service.impl.CartServiceImpl.maxAmount;
@@ -32,6 +30,12 @@ public class OrderUtils extends ServiceUtils {
 
     @Autowired
     private CartRepository cartRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductSnapshotRepository productSnapshotRepository;
 
     protected void checkCartTotal(BigDecimal tempItemTotal, BigDecimal cartTotal) {
         BigDecimal cartTotalValidation = tempItemTotal.add(cartTotal);
@@ -77,5 +81,53 @@ public class OrderUtils extends ServiceUtils {
         }
 
         return total;
+    }
+
+
+    public BaseResponse<?> saveNewOrder(User user) {
+        try {
+            Cart cart = cartRepository.findByUser(user)
+                    .orElseThrow(() -> new CartNotFoundException("Cart not found."));
+            List<Item> items = itemRepository.findByCartAndStatus(cart, EItemStatus.IN_CART);
+            Order newOrder = new Order();
+            newOrder.setUser(user);
+            convertCartItemsToSnapshots(newOrder, items);
+
+            newOrder.setCreatedAt(new Date());
+            orderRepository.save(newOrder);
+            return BaseResponse.ok(newOrder);
+        } catch (Exception e) {
+            System.out.println("ini error");
+            System.out.println(e.getMessage());
+            return BaseResponse.badRequest(e.getMessage());
+        }
+    }
+
+    public void convertCartItemsToSnapshots(Order order, List<Item> items) {
+        for (Item item : items) {
+            ProductSnapshot snapshot = new ProductSnapshot();
+            Product product = item.getProduct();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
+            Date snapshotAt = new Date();
+            String formattedDate = dateFormat.format(snapshotAt);
+
+            snapshot.setOrder(order);
+            snapshot.setProduct(product);
+            snapshot.setProductName(product.getProductName());
+            snapshot.setSlug("snapshot_" +
+                    product.getSlug() +
+                    item.getItemId() +
+                    "_" + formattedDate
+            );
+            snapshot.setDescription(product.getDescription());
+            snapshot.setPrice(product.getPrice());
+            snapshot.setWeight(product.getWeight());
+            snapshot.setProductCreatedAt(product.getCreatedAt());
+            snapshot.setLastUpdatedAt(product.getUpdatedAt());
+            snapshot.setSnapshotAt(snapshotAt);
+
+            productSnapshotRepository.save(snapshot);
+        }
     }
 }

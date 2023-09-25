@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Date;
 
 @Entity
 @Setter @Getter @NoArgsConstructor
@@ -13,6 +15,20 @@ public class ProductSnapshot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String productName;
+    private String slug;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String description;
+    private BigDecimal price;
+    private Double weight;
+    private Date productCreatedAt;
+    private Date lastUpdatedAt;
+    private Date snapshotAt;
+
+    private int quantity;
+    private BigDecimal itemPriceTotal;
 
     @ManyToOne
     @JoinColumn(name = "order_id")

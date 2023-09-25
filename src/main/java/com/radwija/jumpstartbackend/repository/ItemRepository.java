@@ -15,4 +15,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Item findByProductAndStatus(Product product, EItemStatus status);
     List<Item> findByCartAndProductIsNotNullAndStatus(Cart cart, EItemStatus status);
     List<Item> findAllByProductAndStatus(Product product, EItemStatus status);
+    List<Item> findByCartAndStatus(Cart cart, EItemStatus status);
 }

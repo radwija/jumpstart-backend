@@ -11,7 +11,9 @@ import com.radwija.jumpstartbackend.payload.response.BaseResponse;
 import com.radwija.jumpstartbackend.repository.CartRepository;
 import com.radwija.jumpstartbackend.repository.ItemRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
+import com.radwija.jumpstartbackend.service.OrderService;
 import com.radwija.jumpstartbackend.service.TransactionService;
+import com.radwija.jumpstartbackend.utils.OrderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OrderService orderService;
 
     @Override
     public BaseResponse<?> createPayment(User user) {
@@ -65,6 +70,11 @@ public class TransactionServiceImpl implements TransactionService {
         try {
             HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
             Order order = orderHttpResponse.result();
+
+            BaseResponse<?> orderRes = orderService.saveNewOrder(user);
+            if (orderRes.getCode() != 200) {
+                throw new Exception(orderRes.getMessage());
+            }
 
             String redirectUrl = order.links().stream()
                     .filter(link -> "approve".equals(link.rel()))
