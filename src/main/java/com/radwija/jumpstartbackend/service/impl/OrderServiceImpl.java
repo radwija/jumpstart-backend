@@ -38,12 +38,13 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
         try {
             Cart cart = cartRepository.findByUser(user)
                     .orElseThrow(() -> new CartNotFoundException("Cart not found."));
-            List<Item> items = itemRepository.findByCartAndStatus(cart, EItemStatus.IN_CART);
+            List<Item> items = itemRepository.findByCartAndProductIsNotNullAndStatus(cart, EItemStatus.IN_CART);
             Order newOrder = new Order();
             newOrder.setUser(user);
             newOrder.setTotal(cart.getTotal());
             convertCartItemsToSnapshots(newOrder, items);
 
+            orderRepository.save(newOrder);
             return BaseResponse.ok(newOrder);
         } catch (Exception e) {
             return BaseResponse.badRequest(e.getMessage());
@@ -67,7 +68,7 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             snapshot.setProductName(product.getProductName());
             snapshot.setSlug("snapshot_" +
                     product.getSlug() +
-                    item.getItemId() +
+                    "_" + item.getItemId() +
                     "_" + formattedDate
             );
             snapshot.setDescription(product.getDescription());

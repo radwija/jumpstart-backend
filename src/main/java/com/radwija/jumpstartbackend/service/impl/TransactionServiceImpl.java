@@ -5,12 +5,12 @@ import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
 import com.radwija.jumpstartbackend.constraint.EItemStatus;
 import com.radwija.jumpstartbackend.entity.Cart;
+import com.radwija.jumpstartbackend.entity.Product;
+import com.radwija.jumpstartbackend.entity.ProductSnapshot;
 import com.radwija.jumpstartbackend.entity.User;
 import com.radwija.jumpstartbackend.exception.CartNotFoundException;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
-import com.radwija.jumpstartbackend.repository.CartRepository;
-import com.radwija.jumpstartbackend.repository.ItemRepository;
-import com.radwija.jumpstartbackend.repository.UserRepository;
+import com.radwija.jumpstartbackend.repository.*;
 import com.radwija.jumpstartbackend.service.OrderService;
 import com.radwija.jumpstartbackend.service.TransactionService;
 import com.radwija.jumpstartbackend.utils.OrderUtils;
@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -40,6 +42,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductSnapshotRepository productSnapshotRepository;
 
     @Override
     public BaseResponse<?> createPayment(User user) {
@@ -71,10 +79,13 @@ public class TransactionServiceImpl implements TransactionService {
             HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
             Order order = orderHttpResponse.result();
 
-            BaseResponse<?> orderRes = orderService.saveNewOrder(user);
-            if (orderRes.getCode() != 200) {
-                throw new Exception(orderRes.getMessage());
-            }
+            com.radwija.jumpstartbackend.entity.Order newOrder = new com.radwija.jumpstartbackend.entity.Order();
+            newOrder.setUser(user);
+            newOrder.setTotal(total);
+            orderRepository.save(newOrder);
+
+            convertCartItemsToSnapshots(newOrder, items);
+            orderRepository.save(newOrder);
 
             String redirectUrl = order.links().stream()
                     .filter(link -> "approve".equals(link.rel()))
@@ -86,6 +97,36 @@ public class TransactionServiceImpl implements TransactionService {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return BaseResponse.badRequest(e.getMessage());
+        }
+    }
+
+    public void convertCartItemsToSnapshots(com.radwija.jumpstartbackend.entity.Order order, List<com.radwija.jumpstartbackend.entity.Item> items) {
+        for (com.radwija.jumpstartbackend.entity.Item item : items) {
+            ProductSnapshot snapshot = new ProductSnapshot();
+            Product product = item.getProduct();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
+            Date snapshotAt = new Date();
+            String formattedDate = dateFormat.format(snapshotAt);
+
+            snapshot.setOrder(order);
+            snapshot.setQuantity(item.getQuantity());
+            snapshot.setItemPriceTotal(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            snapshot.setProduct(product);
+            snapshot.setProductName(product.getProductName());
+            snapshot.setSlug("snapshot_" +
+                    product.getSlug() +
+                    "_" + item.getItemId() +
+                    "_" + formattedDate
+            );
+            snapshot.setDescription(product.getDescription());
+            snapshot.setPrice(product.getPrice());
+            snapshot.setWeight(product.getWeight());
+            snapshot.setProductCreatedAt(product.getCreatedAt());
+            snapshot.setLastUpdatedAt(product.getUpdatedAt());
+            snapshot.setSnapshotAt(snapshotAt);
+
+            productSnapshotRepository.save(snapshot);
         }
     }
 

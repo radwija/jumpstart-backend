@@ -8,11 +8,8 @@ import com.radwija.jumpstartbackend.exception.OutOfProductStockException;
 import com.radwija.jumpstartbackend.exception.ProductNotFoundException;
 import com.radwija.jumpstartbackend.payload.request.ItemRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
-import com.radwija.jumpstartbackend.payload.response.CartDto;
 import com.radwija.jumpstartbackend.repository.*;
-import com.radwija.jumpstartbackend.service.impl.CartServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -88,7 +85,7 @@ public class OrderUtils extends ServiceUtils {
         try {
             Cart cart = cartRepository.findByUser(user)
                     .orElseThrow(() -> new CartNotFoundException("Cart not found."));
-            List<Item> items = itemRepository.findByCartAndStatus(cart, EItemStatus.IN_CART);
+            List<Item> items = itemRepository.findAllByCartAndStatus(cart, EItemStatus.IN_CART);
             Order newOrder = new Order();
             newOrder.setUser(user);
             convertCartItemsToSnapshots(newOrder, items);
