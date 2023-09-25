@@ -21,4 +21,8 @@ public class Category {
     @JsonBackReference
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products;
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    private List<ProductSnapshot> snapshots;
 }

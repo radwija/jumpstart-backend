@@ -74,6 +74,7 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             snapshot.setQuantity(item.getQuantity());
             snapshot.setItemPriceTotal(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
             snapshot.setProduct(product);
+            snapshot.setCategory(product.getCategory());
             snapshot.setProductName(product.getProductName());
             snapshot.setSlug("snapshot_" +
                     product.getSlug() +

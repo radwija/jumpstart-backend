@@ -27,6 +27,10 @@ public class ProductSnapshot {
     private Date lastUpdatedAt;
     private Date snapshotAt;
 
+    @ManyToOne
+    @JoinColumn(name = "category_category_id")
+    private Category category;
+
     private int quantity;
     private BigDecimal itemPriceTotal;
 
