@@ -79,14 +79,6 @@ public class TransactionServiceImpl implements TransactionService {
             HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
             Order order = orderHttpResponse.result();
 
-            com.radwija.jumpstartbackend.entity.Order newOrder = new com.radwija.jumpstartbackend.entity.Order();
-            newOrder.setUser(user);
-            newOrder.setTotal(total);
-            orderRepository.save(newOrder);
-
-            convertCartItemsToSnapshots(newOrder, items);
-            orderRepository.save(newOrder);
-
             String redirectUrl = order.links().stream()
                     .filter(link -> "approve".equals(link.rel()))
                     .findFirst()
@@ -97,36 +89,6 @@ public class TransactionServiceImpl implements TransactionService {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return BaseResponse.badRequest(e.getMessage());
-        }
-    }
-
-    public void convertCartItemsToSnapshots(com.radwija.jumpstartbackend.entity.Order order, List<com.radwija.jumpstartbackend.entity.Item> items) {
-        for (com.radwija.jumpstartbackend.entity.Item item : items) {
-            ProductSnapshot snapshot = new ProductSnapshot();
-            Product product = item.getProduct();
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
-            Date snapshotAt = new Date();
-            String formattedDate = dateFormat.format(snapshotAt);
-
-            snapshot.setOrder(order);
-            snapshot.setQuantity(item.getQuantity());
-            snapshot.setItemPriceTotal(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-            snapshot.setProduct(product);
-            snapshot.setProductName(product.getProductName());
-            snapshot.setSlug("snapshot_" +
-                    product.getSlug() +
-                    "_" + item.getItemId() +
-                    "_" + formattedDate
-            );
-            snapshot.setDescription(product.getDescription());
-            snapshot.setPrice(product.getPrice());
-            snapshot.setWeight(product.getWeight());
-            snapshot.setProductCreatedAt(product.getCreatedAt());
-            snapshot.setLastUpdatedAt(product.getUpdatedAt());
-            snapshot.setSnapshotAt(snapshotAt);
-
-            productSnapshotRepository.save(snapshot);
         }
     }
 
@@ -144,6 +106,11 @@ public class TransactionServiceImpl implements TransactionService {
             if (httpResponse.result().status() != null) {
                 PurchaseUnit purchaseUnit = purchaseUnits.get(0);
                 Capture capture = purchaseUnit.payments().captures().get(0);
+
+                BaseResponse<?> newOrder = orderService.saveNewOrder(user);
+                if (newOrder.getCode() != 200) {
+                    throw new Exception(newOrder.getMessage());
+                }
 
                 for (com.radwija.jumpstartbackend.entity.Item item : items) {
                     item.setStatus(EItemStatus.PURCHASED);

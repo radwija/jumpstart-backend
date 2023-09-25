@@ -15,6 +15,7 @@ import com.radwija.jumpstartbackend.utils.OrderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -39,11 +40,19 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             Cart cart = cartRepository.findByUser(user)
                     .orElseThrow(() -> new CartNotFoundException("Cart not found."));
             List<Item> items = itemRepository.findByCartAndProductIsNotNullAndStatus(cart, EItemStatus.IN_CART);
+            BigDecimal total = new BigDecimal("0");
+
+            for (com.radwija.jumpstartbackend.entity.Item item : items) {
+                total = total.add(item.getItemPriceTotal());
+            }
+
             Order newOrder = new Order();
             newOrder.setUser(user);
-            newOrder.setTotal(cart.getTotal());
+            newOrder.setTotal(total);
+            newOrder.setStatus(EOrderStatus.PENDING);
+            newOrder.setCreatedAt(new Date());
+            orderRepository.save(newOrder);
             convertCartItemsToSnapshots(newOrder, items);
-
             orderRepository.save(newOrder);
             return BaseResponse.ok(newOrder);
         } catch (Exception e) {
@@ -63,7 +72,7 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
 
             snapshot.setOrder(order);
             snapshot.setQuantity(item.getQuantity());
-            snapshot.setItemPriceTotal(item.getItemPriceTotal());
+            snapshot.setItemPriceTotal(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
             snapshot.setProduct(product);
             snapshot.setProductName(product.getProductName());
             snapshot.setSlug("snapshot_" +
