@@ -248,7 +248,6 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> searchByCategorySlugAndQuery(String categorySlug, String query) {
         List<Product> byCategorySlug = searchByCategorySlug(categorySlug);
         List<Product> byQuery = searchByQuery(query);
-        ProductSearchResultDto result = new ProductSearchResultDto();
 
         if (byCategorySlug.size() > 0) {
             Set<Product> combinedResults = new HashSet<>(byCategorySlug);

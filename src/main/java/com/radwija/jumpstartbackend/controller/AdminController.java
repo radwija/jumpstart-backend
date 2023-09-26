@@ -115,4 +115,14 @@ public class AdminController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    @GetMapping("/customers")
+    public ResponseEntity<?> showAllUsers() {
+        User currentUser = userService.getCurrentUser();
+        BaseResponse<?> response = userService.showAllUsers(currentUser);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }

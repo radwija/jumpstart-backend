@@ -10,6 +10,8 @@ import com.radwija.jumpstartbackend.exception.UserNotFoundException;
 import com.radwija.jumpstartbackend.payload.request.UpdatePasswordRequest;
 import com.radwija.jumpstartbackend.payload.request.UserRegisterRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
+import com.radwija.jumpstartbackend.payload.response.CustomerDto;
+import com.radwija.jumpstartbackend.payload.response.CustomersDto;
 import com.radwija.jumpstartbackend.repository.UserProfileRepository;
 import com.radwija.jumpstartbackend.repository.UserRepository;
 import com.radwija.jumpstartbackend.service.EmailSenderService;
@@ -23,7 +25,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.AccountNotFoundException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -193,5 +197,36 @@ public class UserServiceImpl extends ServiceUtils implements UserService {
             return BaseResponse.badRequest(e.getMessage());
         }
 
+    }
+
+    @Override
+    public BaseResponse<?> showAllUsers(User user) {
+        try {
+            String email = user.getEmail();
+            if (!isAdmin(email)) {
+                return BaseResponse.forbidden();
+            }
+            CustomersDto result = new CustomersDto();
+            List<User> users = userRepository.findAllByRole(ERole.ROLE_USER);
+            List<CustomerDto> customerDtos = new ArrayList<>();
+
+            for (User mappedUser : users) {
+                UserProfile profile = mappedUser.getUserProfile();
+                String firstName = profile.getFirstName();
+                String lastName = profile.getLastName();
+                CustomerDto customerDto = new CustomerDto();
+
+                BeanUtils.copyProperties(mappedUser, customerDto);
+                customerDto.setFullName(firstName + " " + lastName);
+                customerDtos.add(customerDto);
+            }
+
+            result.setCustomerNumbers(users.size());
+            result.setCustomers(customerDtos);
+
+            return BaseResponse.ok(result);
+        } catch (Exception e) {
+            return BaseResponse.badRequest(e.getMessage());
+        }
     }
 }

@@ -14,4 +14,5 @@ public interface UserService {
     BaseResponse<?> findAccountByUuid(String uuid);
     BaseResponse<?> updateUuidResetPassword(String email);
     BaseResponse<?> updatePassword(UpdatePasswordRequest updatePasswordRequest);
+    BaseResponse<?> showAllUsers(User user);
 }
