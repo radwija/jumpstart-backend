@@ -17,10 +17,13 @@ import com.radwija.jumpstartbackend.service.ProductService;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.text.html.Option;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -49,19 +52,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public BaseResponse<?> saveProduct(String currentUserEmail, ProductRequest productRequest) {
+    public BaseResponse<?> saveProduct(String currentUserEmail, MultipartFile image, ProductRequest productRequest) {
         BaseResponse<Product> response = new BaseResponse<>();
         try {
-            checkUserIsAdmin(currentUserEmail);
+//            checkUserIsAdmin(currentUserEmail);
             System.out.println("category id service: " + productRequest.getCategoryId());
             Category category = categoryRepository.findByCategoryId(productRequest.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
             String rawSlug = productRequest.getSlug().toLowerCase().trim().replaceAll(" ", "-");
+
+            if (image.getSize() > 304857) {
+                return BaseResponse.badRequest("File size exceeds the allowed limit. File must be under 300 KB.");
+            }
 
             if (productRequest.getProductId() == null) {
                 Product newProduct = mapProductRequestToNewProduct(productRequest);
                 newProduct.setCategory(category);
                 newProduct.setSlug(handleUniqueSlug(newProduct, rawSlug));
                 newProduct.setCreatedAt(new Date());
+                byte[] productImage = image.getBytes();
+                newProduct.setImage(productImage);
                 productRepository.save(newProduct);
 
                 response.setCode(200);
@@ -72,6 +81,9 @@ public class ProductServiceImpl implements ProductService {
                 mapProductRequestToExistingProduct(productRequest, existingProduct);
                 existingProduct.setSlug(handleUniqueSlug(existingProduct, rawSlug));
                 existingProduct.setUpdatedAt(new Date());
+                byte[] productImage = image.getBytes();
+                existingProduct.setImage(productImage);
+
                 productRepository.save(existingProduct);
 
                 response.setCode(200);
@@ -82,9 +94,10 @@ public class ProductServiceImpl implements ProductService {
             return response;
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
-            response.setCode(400);
-            response.setMessage(e.getMessage());
-            return response;
+            return BaseResponse.badRequest(e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return BaseResponse.badRequest("Something wrong with the image");
         }
     }
 

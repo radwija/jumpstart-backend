@@ -26,6 +26,8 @@ public class Product {
     private Double weight;
     private Date createdAt;
     private Date updatedAt;
+    @Lob
+    private byte[] image;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
