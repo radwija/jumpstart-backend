@@ -7,10 +7,7 @@ import com.radwija.jumpstartbackend.payload.request.CreateCategoryRequest;
 import com.radwija.jumpstartbackend.payload.request.ProductRequest;
 import com.radwija.jumpstartbackend.payload.request.UserRegisterRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
-import com.radwija.jumpstartbackend.service.CategoryService;
-import com.radwija.jumpstartbackend.service.OrderService;
-import com.radwija.jumpstartbackend.service.ProductService;
-import com.radwija.jumpstartbackend.service.UserService;
+import com.radwija.jumpstartbackend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +27,9 @@ public class AdminController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private StatisticService statisticService;
 
     @PostMapping("/create-category")
     public ResponseEntity<?> createCategory(@RequestBody CreateCategoryRequest request) {
@@ -120,6 +120,16 @@ public class AdminController {
     public ResponseEntity<?> showAllUsers() {
         User currentUser = userService.getCurrentUser();
         BaseResponse<?> response = userService.showAllUsers(currentUser);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<?> showAllStatistics() {
+        User currentUser = userService.getCurrentUser();
+        BaseResponse<?> response = statisticService.getAllStats(currentUser);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }
