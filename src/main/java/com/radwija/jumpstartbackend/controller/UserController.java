@@ -37,9 +37,8 @@ public class UserController {
 
     @PutMapping("/update-profile")
     public ResponseEntity<?> updateProfile(@RequestBody UpdateUserRequest updateUserRequest) {
-        String currentUserEmail = userService.getCurrentUser().getEmail();
-        final BaseResponse<?> response = userProfileService.updateProfile(currentUserEmail, updateUserRequest);
-
+        User user = userService.getCurrentUser();
+        final BaseResponse<?> response = userProfileService.updateProfile(user, updateUserRequest);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }
