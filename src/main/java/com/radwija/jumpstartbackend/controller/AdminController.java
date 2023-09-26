@@ -53,8 +53,7 @@ public class AdminController {
             @RequestParam("stock") Long stock,
             @RequestParam("weight") Double weight,
             @RequestParam("categoryId") Long categoryId) {
-//        String currentUserEmail = userService.getCurrentUser().getEmail();
-        String currentUserEmail = "";
+        String currentUserEmail = userService.getCurrentUser().getEmail();
         ProductRequest request = new ProductRequest();
         request.setProductName(productName);
         request.setSlug(slug);

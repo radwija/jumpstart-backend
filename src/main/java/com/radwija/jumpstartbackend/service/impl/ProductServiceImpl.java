@@ -55,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
     public BaseResponse<?> saveProduct(String currentUserEmail, MultipartFile image, ProductRequest productRequest) {
         BaseResponse<Product> response = new BaseResponse<>();
         try {
-//            checkUserIsAdmin(currentUserEmail);
+            checkUserIsAdmin(currentUserEmail);
             System.out.println("category id service: " + productRequest.getCategoryId());
             Category category = categoryRepository.findByCategoryId(productRequest.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
             String rawSlug = productRequest.getSlug().toLowerCase().trim().replaceAll(" ", "-");
