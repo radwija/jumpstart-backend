@@ -127,13 +127,23 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             }
             for (Order order : orders) {
                 User customer = order.getUser();
-                String firstName = customer.getUserProfile().getFirstName();
-                String lastName = customer.getUserProfile().getLastName();
+                String firstName = "Unknown";
+                String lastName = "User";
+                if (customer != null) {
+                    firstName = customer.getUserProfile().getFirstName();
+                    lastName = customer.getUserProfile().getLastName();
+                }
 
                 CustomOrderDto customOrderDto = new CustomOrderDto();
                 BeanUtils.copyProperties(order, customOrderDto);
-                customOrderDto.setUserId(customer.getUserId());
-                customOrderDto.setEmail(customer.getEmail());
+                if (customer != null) {
+                    customOrderDto.setUserId(customer.getUserId());
+                    customOrderDto.setEmail(customer.getEmail());
+                } else {
+                    customOrderDto.setUserId(null);
+                    customOrderDto.setEmail(null);
+                }
+
                 customOrderDto.setFullName(firstName + " " + lastName);
                 customOrderDtos.add(customOrderDto);
             }
@@ -185,9 +195,9 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
                 return BaseResponse.forbidden();
             }
             Order order = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId+ " not found."));
+                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId + " not found."));
             if (order.getStatus() == EOrderStatus.COMPLETED) {
-                return BaseResponse.ok("Order ID: " + orderId+ " already set to be COMPLETED.");
+                return BaseResponse.ok("Order ID: " + orderId + " already set to be COMPLETED.");
             }
 
             List<ProductSnapshot> productSnapshots = order.getProductSnapshots();
@@ -215,9 +225,9 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
                 return BaseResponse.forbidden();
             }
             Order order = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId+ " not found."));
+                    .orElseThrow(() -> new OrderNotFoundException("Order ID: " + orderId + " not found."));
             if (order.getStatus() == EOrderStatus.CANCELLED) {
-                return BaseResponse.ok("Order ID: " + orderId+ " already set to be COMPLETED.");
+                return BaseResponse.ok("Order ID: " + orderId + " already set to be COMPLETED.");
             }
 
             order.setStatus(EOrderStatus.CANCELLED);

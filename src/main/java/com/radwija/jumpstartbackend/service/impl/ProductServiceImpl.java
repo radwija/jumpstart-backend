@@ -11,6 +11,7 @@ import com.radwija.jumpstartbackend.exception.ProductNotFoundException;
 import com.radwija.jumpstartbackend.exception.RefusedActionException;
 import com.radwija.jumpstartbackend.payload.request.ProductRequest;
 import com.radwija.jumpstartbackend.payload.response.BaseResponse;
+import com.radwija.jumpstartbackend.payload.response.ProductSearchResultDto;
 import com.radwija.jumpstartbackend.repository.*;
 import com.radwija.jumpstartbackend.service.ProductService;
 import net.bytebuddy.utility.RandomString;
@@ -20,9 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -201,5 +200,62 @@ public class ProductServiceImpl implements ProductService {
         } catch (RuntimeException e) {
             return BaseResponse.badRequest(e.getMessage());
         }
+    }
+
+    @Override
+    public BaseResponse<?> searchForProducts(String categorySlug, String query) {
+        List<Product> searchResults = productRepository.findAll();
+        ProductSearchResultDto result = new ProductSearchResultDto();
+
+        if (categorySlug != null && query != null) {
+            // Search by both category and query
+            searchResults = searchByCategorySlugAndQuery(categorySlug, query);
+            result.setSearchResults(searchResults);
+        } else if (categorySlug != null) {
+            // Search by category only
+            searchResults = searchByCategorySlug(categorySlug);
+            result.setSearchResults(searchResults);
+        } else if (query != null) {
+            // Search by query only
+            searchResults = searchByQuery(query);
+            result.setSearchResults(searchResults);
+        } else {
+            result.setSearchResults(searchResults);
+        }
+
+        result.setCategorySlug(categorySlug);
+        result.setQuery(query);
+        result.setResultSize(searchResults.size());
+
+        return BaseResponse.ok(result);
+    }
+
+    @Override
+    public List<Product> searchByCategorySlug(String categorySlug) {
+        Category category = categoryRepository.findByCategorySlug(categorySlug);
+        if (category != null) {
+            return productRepository.findByCategory(category);
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<Product> searchByQuery(String query) {
+        return productRepository.findByProductNameContaining(query);
+    }
+
+    @Override
+    public List<Product> searchByCategorySlugAndQuery(String categorySlug, String query) {
+        List<Product> byCategorySlug = searchByCategorySlug(categorySlug);
+        List<Product> byQuery = searchByQuery(query);
+        ProductSearchResultDto result = new ProductSearchResultDto();
+
+        if (byCategorySlug.size() > 0) {
+            Set<Product> combinedResults = new HashSet<>(byCategorySlug);
+            combinedResults.addAll(byQuery);
+            return new ArrayList<>(combinedResults);
+        }
+
+        return byQuery;
     }
 }
