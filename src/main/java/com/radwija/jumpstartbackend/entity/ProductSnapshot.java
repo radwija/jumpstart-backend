@@ -26,6 +26,8 @@ public class ProductSnapshot {
     private Date productCreatedAt;
     private Date lastUpdatedAt;
     private Date snapshotAt;
+    @Lob
+    private byte[] image;
 
     @ManyToOne
     @JoinColumn(name = "category_category_id")

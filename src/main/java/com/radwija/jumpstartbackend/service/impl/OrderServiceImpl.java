@@ -82,6 +82,11 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             snapshot.setProduct(product);
             snapshot.setCategory(product.getCategory());
             snapshot.setProductName(product.getProductName());
+            if (product.getImage() != null) {
+                snapshot.setImage(product.getImage());
+            } else {
+                snapshot.setImage(null);
+            }
             snapshot.setSlug("snapshot_" +
                     product.getSlug() +
                     "_" + item.getItemId() +
