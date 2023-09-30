@@ -117,12 +117,17 @@ public class AdminController {
     }
 
     @GetMapping("/orders")
-    public ResponseEntity<?> getAllOrders(@RequestParam(value = "filter", required = false) String filter) {
+    public ResponseEntity<?> getAllOrders(
+            @RequestParam(value = "filter", required = false) String filter,
+            @RequestParam(value = "order", required = false) String orderBy) {
         User currentUser = userService.getCurrentUser();
         if (filter == null) {
             filter = "";
         }
-        BaseResponse<?> response = orderService.getAllOrders(currentUser, filter);
+        if (orderBy == null) {
+            orderBy = "";
+        }
+        BaseResponse<?> response = orderService.getAllOrders(currentUser, filter, orderBy);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }

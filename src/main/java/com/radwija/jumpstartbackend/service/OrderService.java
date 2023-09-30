@@ -12,7 +12,7 @@ import java.util.List;
 public interface OrderService {
     BaseResponse<?> saveNewOrder(User user);
     void convertCartItemsToSnapshots(Order order, List<Item> items);
-    BaseResponse<?> getAllOrders(User user, String status);
+    BaseResponse<?> getAllOrders(User user, String status, String orderBy);
     BaseResponse<?> getMyOrders(User user, String status, String orderBy);
     BaseResponse<?> completeOrder(User user, Long orderId);
     BaseResponse<?> cancelOrder(User user, Long orderId);

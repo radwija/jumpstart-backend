@@ -102,8 +102,7 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
     }
 
     @Override
-    public BaseResponse<?> getAllOrders(User user, String status) {
-        BaseResponse<Order> response = new BaseResponse<>();
+    public BaseResponse<?> getAllOrders(User user, String status, String orderBy) {
         try {
             String email = user.getEmail();
             if (!isAdmin(email)) {
@@ -128,6 +127,13 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
                     orders = orderRepository.findAll();
                     break;
             }
+
+            if (orderBy.equals("asc")) {
+                orders.sort(Comparator.comparing(Order::getCreatedAt));
+            } else {
+                orders.sort(Comparator.comparing(Order::getCreatedAt).reversed());
+            }
+
             for (Order order : orders) {
                 User customer = order.getUser();
                 String firstName = "Unknown";
@@ -152,6 +158,7 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             }
 
             result.setFilter(status);
+            result.setOrderBy(orderBy);
             result.setOrderNumbers(orders.size());
             result.setOrders(customOrderDtos);
 
