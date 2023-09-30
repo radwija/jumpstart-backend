@@ -211,7 +211,8 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
             for (ProductSnapshot productSnapshot : productSnapshots) {
                 Product product = productSnapshot.getProduct();
                 Long stock = product.getStock();
-                product.setStock(stock - productSnapshot.getQuantity());
+                Long remainingStock = stock - productSnapshot.getQuantity();
+                product.setStock(remainingStock);
                 productRepository.save(product);
             }
             order.setUpdatedAt(new Date());
