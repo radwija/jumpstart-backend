@@ -72,7 +72,7 @@ public class AdminController {
     @PutMapping("/update-product/{slug}")
     public ResponseEntity<?> updateProduct(
             @PathVariable("slug") String slug,
-            @RequestParam("image") MultipartFile image,
+            @RequestParam(value = "image", required = false) MultipartFile image,
             @RequestParam("productName") String productName,
             @RequestParam("description") String description,
             @RequestParam("price") BigDecimal price,

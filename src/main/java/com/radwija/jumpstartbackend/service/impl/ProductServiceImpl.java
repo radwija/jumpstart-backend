@@ -60,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
             Category category = categoryRepository.findByCategoryId(productRequest.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Category not found"));
             String rawSlug = productRequest.getSlug().toLowerCase().trim().replaceAll(" ", "-");
 
-            if (image.getSize() > 304857) {
+            if (image != null && image.getSize() > 304857) {
                 return BaseResponse.badRequest("File size exceeds the allowed limit. File must be under 300 KB.");
             }
 
@@ -81,7 +81,10 @@ public class ProductServiceImpl implements ProductService {
                 mapProductRequestToExistingProduct(productRequest, existingProduct);
                 existingProduct.setSlug(handleUniqueSlug(existingProduct, rawSlug));
                 existingProduct.setUpdatedAt(new Date());
-                byte[] productImage = image.getBytes();
+                byte[] productImage = existingProduct.getImage();
+                if (image != null) {
+                   productImage = image.getBytes();
+                }
                 existingProduct.setImage(productImage);
 
                 productRepository.save(existingProduct);
