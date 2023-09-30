@@ -19,9 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class OrderServiceImpl extends OrderUtils implements OrderService {
@@ -164,7 +162,7 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
     }
 
     @Override
-    public BaseResponse<?> getMyOrders(User user, String status) {
+    public BaseResponse<?> getMyOrders(User user, String status, String orderBy) {
         try {
             List<Order> myOrders;
             OrderDto result = new OrderDto();
@@ -183,7 +181,13 @@ public class OrderServiceImpl extends OrderUtils implements OrderService {
                     break;
             }
 
+            if (orderBy.equals("asc")) {
+                myOrders.sort(Comparator.comparing(Order::getCreatedAt));
+            } else {
+                myOrders.sort(Comparator.comparing(Order::getCreatedAt).reversed());
+            }
             result.setFilter(status);
+            result.setOrderBy(orderBy);
             result.setOrderNumbers(myOrders.size());
             result.setOrders(myOrders);
 

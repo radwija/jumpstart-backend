@@ -13,6 +13,7 @@ import java.util.List;
 @Setter @Getter @NoArgsConstructor
 public class OrderDto {
     private String filter;
+    private String orderBy;
     private int orderNumbers;
     private List<Order> orders;
 }

@@ -87,12 +87,17 @@ public class UserController {
     }
 
     @GetMapping("/my-orders")
-    public ResponseEntity<?> getMyOrders(@RequestParam(value = "filter", required = false) String filter) {
+    public ResponseEntity<?> getMyOrders(
+            @RequestParam(value = "filter", required = false) String filter,
+            @RequestParam(value = "order", required = false) String orderBy) {
         User currentUser = userService.getCurrentUser();
         if (filter == null) {
             filter = "";
         }
-        BaseResponse<?> response = orderService.getMyOrders(currentUser, filter);
+        if (orderBy == null) {
+            orderBy = "";
+        }
+        BaseResponse<?> response = orderService.getMyOrders(currentUser, filter, orderBy);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }
