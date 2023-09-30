@@ -8,6 +8,7 @@ import com.radwija.jumpstartbackend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/user")
@@ -39,6 +40,16 @@ public class UserController {
     public ResponseEntity<?> updateProfile(@RequestBody UpdateUserRequest updateUserRequest) {
         User user = userService.getCurrentUser();
         final BaseResponse<?> response = userProfileService.updateProfile(user, updateUserRequest);
+        if (response.getCode() == 200) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @PutMapping("/update-profile-picture")
+    public ResponseEntity<?> updateProfile(@RequestParam("profilePicture") MultipartFile profilePicture) {
+        User user = userService.getCurrentUser();
+        final BaseResponse<?> response = userProfileService.updateProfilePicture(user, profilePicture);
         if (response.getCode() == 200) {
             return ResponseEntity.ok(response);
         }
