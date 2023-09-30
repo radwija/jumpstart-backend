@@ -70,13 +70,29 @@ public class AdminController {
     }
 
     @PutMapping("/update-product/{slug}")
-    public ResponseEntity<?> updateProduct(@PathVariable("slug") String slug, MultipartFile image, @RequestBody ProductRequest request) {
+    public ResponseEntity<?> updateProduct(
+            @PathVariable("slug") String slug,
+            @RequestParam("image") MultipartFile image,
+            @RequestParam("productName") String productName,
+            @RequestParam("description") String description,
+            @RequestParam("price") BigDecimal price,
+            @RequestParam("stock") Long stock,
+            @RequestParam("weight") Double weight,
+            @RequestParam("categoryId") Long categoryId) {
         String currentUserEmail = userService.getCurrentUser().getEmail();
 
         Long productId;
+        ProductRequest request = new ProductRequest();
         try {
             productId = productService.getProductDetailsBySlug(slug).getProductId();
             request.setProductId(productId);
+            request.setProductName(productName);
+            request.setSlug(slug);
+            request.setDescription(description);
+            request.setPrice(price);
+            request.setStock(stock);
+            request.setWeight(weight);
+            request.setCategoryId(categoryId);
         } catch (ProductNotFoundException e) {
             return ResponseEntity.status(404).body(BaseResponse.notFound(e.getMessage()));
         }

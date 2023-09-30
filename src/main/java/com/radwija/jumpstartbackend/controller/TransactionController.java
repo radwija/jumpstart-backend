@@ -36,9 +36,6 @@ public class TransactionController {
         return ResponseEntity.badRequest().body(response);
     }
 
-    // TODO: use this end point to trigger complete order or cancel
-    // complete = execute this end point
-    // cancel = find out token expiration or set null token in database
     @GetMapping("/capture")
     public ResponseEntity<?> completePayment(@RequestParam("token") String token) {
         User user = userService.getCurrentUser();
