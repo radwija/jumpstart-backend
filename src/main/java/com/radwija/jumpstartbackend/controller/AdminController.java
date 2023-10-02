@@ -69,11 +69,12 @@ public class AdminController {
         return ResponseEntity.badRequest().body(response);
     }
 
-    @PutMapping("/update-product/{slug}")
+    @PutMapping("/update-product/{slugPath}")
     public ResponseEntity<?> updateProduct(
-            @PathVariable("slug") String slug,
+            @PathVariable("slugPath") String slugPath,
             @RequestParam(value = "image", required = false) MultipartFile image,
             @RequestParam("productName") String productName,
+            @RequestParam("slug") String newSlug,
             @RequestParam("description") String description,
             @RequestParam("price") BigDecimal price,
             @RequestParam("stock") Long stock,
@@ -84,10 +85,10 @@ public class AdminController {
         Long productId;
         ProductRequest request = new ProductRequest();
         try {
-            productId = productService.getProductDetailsBySlug(slug).getProductId();
+            productId = productService.getProductDetailsBySlug(slugPath).getProductId();
             request.setProductId(productId);
             request.setProductName(productName);
-            request.setSlug(slug);
+            request.setSlug(newSlug);
             request.setDescription(description);
             request.setPrice(price);
             request.setStock(stock);
